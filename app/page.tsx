@@ -4,6 +4,8 @@ import { Suspense } from 'react';
 import { searchService } from '@/services/search.service';
 import type { IListingSummary } from '@/types';
 
+export const dynamic = 'force-dynamic';
+
 async function FeaturedListings() {
   let listings: IListingSummary[] = [];
   try {
