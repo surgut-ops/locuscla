@@ -1,8 +1,8 @@
 // app/host/dashboard/page.tsx
 // Host analytics dashboard — server component
 
-import { analyticsService } from '@/services/analytics.service';
-import { listingService } from '@/services/listing.service';
+import { getHostDashboard } from '@/services/analytics.service';
+import { getHostListings } from '@/services/listing.service';
 
 // Note: In production, get hostId from authenticated session
 // This shows the data structure used
@@ -16,18 +16,23 @@ export default async function HostDashboardPage() {
 
   try {
     [analytics, listingsData] = await Promise.all([
-      analyticsService.getHostAnalytics(PLACEHOLDER_HOST_ID, 30),
-      listingService.getHostListings(PLACEHOLDER_HOST_ID),
+      getHostDashboard(PLACEHOLDER_HOST_ID),
+      getHostListings(PLACEHOLDER_HOST_ID),
     ]);
+    listingsData = { ...listingsData, hasNext: !!listingsData.cursor };
   } catch {
     analytics = null;
-    listingsData = { listings: [], cursor: null, hasNext: false };
+    listingsData = { listings: [], cursor: undefined, total: 0, hasNext: false };
   }
+
+  const totalBookings = analytics
+    ? analytics.topListings.reduce((sum, l) => sum + l.bookings, 0)
+    : 0;
 
   const stats = analytics ? [
     { label: 'Просмотры', value: analytics.totalViews.toLocaleString(), icon: '👁' },
     { label: 'Доход', value: `${analytics.totalRevenue.toLocaleString('ru-RU')} ₽`, icon: '💰' },
-    { label: 'Бронирования', value: analytics.totalBookings.toLocaleString(), icon: '📅' },
+    { label: 'Бронирования', value: totalBookings.toLocaleString(), icon: '📅' },
     { label: 'Конверсия', value: `${analytics.conversionRate.toFixed(1)}%`, icon: '📈' },
     { label: 'Рейтинг', value: analytics.avgRating.toFixed(1), icon: '⭐' },
     { label: 'Загруженность', value: `${analytics.occupancyRate}%`, icon: '🏠' },

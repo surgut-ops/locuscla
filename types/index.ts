@@ -219,7 +219,7 @@ export interface IHostDashboardStats {
   activeListings: number;
   pendingBookings: number;
   revenueByWeek: { week: string; revenue: number }[];
-  topListings: { id: string; title: string; views: number; bookings: number }[];
+  topListings: { id: string; title: string; views: number; bookings: number; revenue: number }[];
 }
 
 // ─── AI TYPES ─────────────────────────────────────────────────────────────────

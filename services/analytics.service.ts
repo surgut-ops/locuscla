@@ -58,8 +58,10 @@ export async function getHostDashboard(hostId: string): Promise<IHostDashboardSt
   // Top listings by bookings
   const topListings = listings
     .map(l => {
-      const views = analyticsData.filter(d => d.listingId === l.id).reduce((s, d) => s + d.views, 0);
-      return { id: l.id, title: l.title, views, bookings: l.totalBookings };
+      const listingAnalytics = analyticsData.filter(d => d.listingId === l.id);
+      const views = listingAnalytics.reduce((s, d) => s + d.views, 0);
+      const revenue = listingAnalytics.reduce((s, d) => s + Number(d.revenue), 0);
+      return { id: l.id, title: l.title, views, bookings: l.totalBookings, revenue };
     })
     .sort((a, b) => b.bookings - a.bookings)
     .slice(0, 5);

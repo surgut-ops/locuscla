@@ -130,6 +130,32 @@ export async function getListings(params: {
   };
 }
 
+export async function getHostListings(hostId: string): Promise<{
+  listings: (IListingSummary & { status: string })[];
+  cursor?: string;
+  total: number;
+}> {
+  const [listings, total] = await Promise.all([
+    db.listing.findMany({
+      where: { hostId, deletedAt: null },
+      take: 51,
+      orderBy: { createdAt: 'desc' },
+      include: { images: { where: { isPrimary: true }, take: 1 } },
+    }),
+    db.listing.count({ where: { hostId, deletedAt: null } }),
+  ]);
+  const hasMore = listings.length > 50;
+  const items = hasMore ? listings.slice(0, -1) : listings;
+  return {
+    listings: items.map(l => ({
+      ...formatListingSummary(l as Parameters<typeof formatListingSummary>[0]),
+      status: l.status.toUpperCase(),
+    })),
+    cursor: hasMore ? items[items.length - 1].id : undefined,
+    total,
+  };
+}
+
 export async function getImageUploadUrl(
   listingId: string,
   hostId: string,
