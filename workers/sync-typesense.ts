@@ -1,5 +1,5 @@
 // Worker: Sync listings from PostgreSQL to Typesense
-// Schedule: Every 5 minutes (Vercel Cron)
+// Schedule: Daily 03:00 UTC (Vercel Hobby — once/day)
 
 import db from '@/lib/db';
 import { typesenseClient, LISTINGS_COLLECTION, ensureListingsCollection } from '@/lib/typesense';

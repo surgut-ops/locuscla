@@ -1,5 +1,5 @@
 // Worker: Generate embeddings and sync to Qdrant
-// Schedule: Every 10 minutes
+// Schedule: Daily 04:00 UTC (Vercel Hobby — once/day)
 
 import db from '@/lib/db';
 import { qdrantClient, LISTINGS_VECTORS_COLLECTION, ensureListingsVectorsCollection } from '@/lib/qdrant';

@@ -1,5 +1,5 @@
 // Worker: Run AI price analysis for all active listings
-// Schedule: Daily at 3 AM
+// Schedule: Daily 06:00 UTC (Vercel Hobby — once/day)
 
 import db from '@/lib/db';
 import { analyzePricing } from '@/services/ai.service';

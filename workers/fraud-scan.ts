@@ -1,5 +1,5 @@
 // Worker: Scan new listings for fraud
-// Schedule: Every 30 minutes
+// Schedule: Daily 07:00 UTC (Vercel Hobby — once/day)
 
 import db from '@/lib/db';
 import { detectFraud } from '@/services/ai.service';

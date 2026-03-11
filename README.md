@@ -122,12 +122,12 @@ Run via Vercel Cron Jobs:
 
 | Worker | Schedule | Purpose |
 |---|---|---|
-| sync-typesense | Every 5 min | Sync listings to search index |
-| sync-qdrant | Every 10 min | Generate + sync vector embeddings |
-| analytics-rollup | Every hour | Aggregate analytics data |
-| price-analysis | Daily 3 AM | AI price recommendations |
-| fraud-scan | Every 30 min | AI fraud detection |
-| expire-bookings | Every 15 min | Cancel unpaid bookings |
+| sync-typesense | Daily 03:00 UTC | Sync listings to search index |
+| sync-qdrant | Daily 04:00 UTC | Generate + sync vector embeddings |
+| analytics-rollup | Daily 05:00 UTC | Aggregate analytics data |
+| price-analysis | Daily 06:00 UTC | AI price recommendations |
+| fraud-scan | Daily 07:00 UTC | AI fraud detection |
+| expire-bookings | Daily 08:00 UTC | Cancel unpaid bookings |
 
 ## Deployment
 

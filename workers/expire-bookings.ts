@@ -1,5 +1,5 @@
 // Worker: Expire pending bookings past timeout (24 hours)
-// Schedule: Every 15 minutes
+// Schedule: Daily 08:00 UTC (Vercel Hobby — once/day)
 
 import db from '@/lib/db';
 

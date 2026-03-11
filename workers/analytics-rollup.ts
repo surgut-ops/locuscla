@@ -1,5 +1,5 @@
 // Worker: Roll up daily analytics
-// Schedule: Every hour
+// Schedule: Daily 05:00 UTC (Vercel Hobby — once/day)
 
 import { rollupDailyAnalytics } from '@/services/analytics.service';
 
