@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { IconHome, IconSearch, IconBrain, IconUser } from './Icons';
+import { IconHome, IconBrain } from './Icons';
 
 interface NavbarProps {
   onLogin: () => void;

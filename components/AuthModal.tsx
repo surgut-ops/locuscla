@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { IconX, IconMail, IconEye, IconCheck } from './Icons';
+import { IconX, IconMail, IconEye } from './Icons';
 
 interface AuthModalProps {
   mode: 'login' | 'register';

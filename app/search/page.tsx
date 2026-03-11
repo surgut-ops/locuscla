@@ -3,7 +3,7 @@
 import { useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { IconSearch, IconFilter, IconChevron, IconStar, IconShield, IconHeart, IconMapPin, IconGrid, IconList, IconMap, IconBrain, IconArrow } from '@/components/Icons';
+import { IconSearch, IconChevron, IconStar, IconShield, IconHeart, IconMapPin, IconGrid, IconList, IconMap, IconBrain } from '@/components/Icons';
 
 const ALL_LISTINGS = [
   { id: 1, img: 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=700&q=80', title: 'Студия в центре Арбата', location: 'Москва, Арбат', price: 55000, rooms: 1, area: 32, floor: '4/9', metro: 'Арбатская', metroMin: 3, badge: 'Топ', verified: true, rating: 4.9, reviews: 47, type: 'Студия' },
@@ -24,8 +24,8 @@ function SearchContent() {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [sortBy, setSortBy] = useState('Новые');
   const [openSort, setOpenSort] = useState(false);
-  const [priceMin, setPriceMin] = useState('');
-  const [priceMax, setPriceMax] = useState('');
+  const [priceMin] = useState('');
+  const [priceMax] = useState('');
   const [selectedRooms, setSelectedRooms] = useState<number[]>([]);
   const [propType, setPropType] = useState('');
   const [verified, setVerified] = useState(false);

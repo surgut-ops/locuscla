@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { IconStar, IconShield, IconHeart, IconMapPin, IconShare, IconPhone, IconMessage, IconBed, IconArea, IconFloor, IconWifi, IconParking, IconPet, IconBrain, IconChevron, IconCheck, IconCalendar, IconArrow } from '@/components/Icons';
+import { IconStar, IconShield, IconHeart, IconMapPin, IconShare, IconPhone, IconMessage, IconBed, IconArea, IconFloor, IconCalendar, IconWifi, IconParking, IconPet, IconBrain, IconChevron, IconCheck } from '@/components/Icons';
 
 const LISTINGS: Record<string, {
   id: number; title: string; location: string; address: string; price: number; priceMonth: number;
@@ -67,7 +67,6 @@ export default function ListingPage({ params }: { params: { id: string } }) {
   const [saved, setSaved] = useState(false);
   const [activeTab, setActiveTab] = useState<'desc' | 'amenities' | 'reviews' | 'location'>('desc');
   const [showPhone, setShowPhone] = useState(false);
-  const [bookingStep, setBookingStep] = useState(0);
 
   return (
     <div style={{ minHeight: '100vh', background: '#F7F9FF', fontFamily: 'Manrope, sans-serif' }}>
@@ -227,7 +226,7 @@ export default function ListingPage({ params }: { params: { id: string } }) {
                   { key: 'reviews', label: `Отзывы (${listing.reviews})` },
                   { key: 'location', label: 'Расположение' },
                 ].map(tab => (
-                  <button key={tab.key} onClick={() => setActiveTab(tab.key as any)} style={{
+                  <button key={tab.key} onClick={() => setActiveTab(tab.key as 'desc' | 'amenities' | 'reviews' | 'location')} style={{
                     flex: 1, padding: '16px 12px', border: 'none', background: 'transparent', cursor: 'pointer', fontSize: 14, fontWeight: 700,
                     color: activeTab === tab.key ? '#0066FF' : '#888',
                     borderBottom: `2.5px solid ${activeTab === tab.key ? '#0066FF' : 'transparent'}`,
