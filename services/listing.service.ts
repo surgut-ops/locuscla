@@ -203,6 +203,10 @@ function formatListing(listing: Record<string, unknown>): IListing {
     createdAt: Date; updatedAt: Date;
     images?: { id: string; listingId: string; url: string; order: number; isPrimary: boolean }[];
     features?: { feature: string }[];
+    host?: {
+      id: string; avatarUrl: string | null; role: string; createdAt: Date;
+      profile?: { firstName: string; lastName: string; isVerified: boolean };
+    };
   };
 
   return {
@@ -232,6 +236,19 @@ function formatListing(listing: Record<string, unknown>): IListing {
     updatedAt: l.updatedAt,
     images: l.images,
     features: l.features?.map(f => f.feature as 'wifi'),
+    host: l.host ? {
+      id: l.host.id,
+      avatarUrl: l.host.avatarUrl,
+      role: l.host.role as 'user' | 'host' | 'admin',
+      profile: l.host.profile ? {
+        firstName: l.host.profile.firstName,
+        lastName: l.host.profile.lastName,
+        avgRating: 0,
+        totalReviews: 0,
+        isVerified: l.host.profile.isVerified,
+      } : { firstName: '', lastName: '', avgRating: 0, totalReviews: 0, isVerified: false },
+      createdAt: l.host.createdAt,
+    } : undefined,
   };
 }
 

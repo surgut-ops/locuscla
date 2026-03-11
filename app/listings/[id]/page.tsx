@@ -1,20 +1,21 @@
 // app/listings/[id]/page.tsx
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { listingService } from '@/services/listing.service';
+import { getListingById } from '@/services/listing.service';
 
 type Props = { params: { id: string } };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   try {
-    const listing = await listingService.getListingById(params.id);
+    const listing = await getListingById(params.id);
+    const primaryImage = listing.images?.[0]?.url ?? null;
     return {
-      title: listing.seoTitle ?? listing.title,
-      description: listing.seoDescription ?? listing.description.slice(0, 160),
+      title: listing.title,
+      description: listing.description.slice(0, 160),
       openGraph: {
         title: listing.title,
         description: listing.description.slice(0, 160),
-        images: listing.primaryImage ? [{ url: listing.primaryImage }] : [],
+        images: primaryImage ? [{ url: primaryImage }] : [],
       },
     };
   } catch {
@@ -25,18 +26,18 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function ListingPage({ params }: Props) {
   let listing;
   try {
-    listing = await listingService.getListingById(params.id);
+    listing = await getListingById(params.id);
   } catch {
     notFound();
   }
 
-  if (listing.status !== 'ACTIVE') notFound();
+  if (listing.status !== 'active') notFound();
 
   return (
     <main className="max-w-6xl mx-auto px-4 py-8">
       {/* Image gallery */}
       <div className="grid grid-cols-4 grid-rows-2 gap-2 rounded-2xl overflow-hidden h-96 mb-8">
-        {listing.images.slice(0, 5).map((img, i) => (
+        {(listing.images ?? []).slice(0, 5).map((img, i) => (
           <div
             key={img.id}
             className={`bg-slate-100 overflow-hidden ${i === 0 ? 'col-span-2 row-span-2' : ''}`}
@@ -67,24 +68,26 @@ export default async function ListingPage({ params }: Props) {
           <hr className="my-6" />
 
           {/* Host info */}
-          <div className="flex items-center gap-3 mb-6">
-            <div className="w-10 h-10 rounded-full bg-slate-200 overflow-hidden">
-              {listing.host.avatarUrl && (
-                <img src={listing.host.avatarUrl} alt="host" className="w-full h-full object-cover" />
-              )}
-            </div>
-            <div>
-              <p className="font-medium text-slate-900">
-                Хозяин: {listing.host.profile?.firstName} {listing.host.profile?.lastName}
-                {listing.host.profile?.isVerified && (
-                  <span className="ml-2 text-xs bg-accent-500 text-white px-2 py-0.5 rounded-full">✓ Верифицирован</span>
+          {listing.host && (
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-10 h-10 rounded-full bg-slate-200 overflow-hidden">
+                {listing.host.avatarUrl && (
+                  <img src={listing.host.avatarUrl} alt="host" className="w-full h-full object-cover" />
                 )}
-              </p>
-              <p className="text-xs text-slate-400">
-                На LOCOS с {new Date(listing.host.createdAt).getFullYear()}
-              </p>
+              </div>
+              <div>
+                <p className="font-medium text-slate-900">
+                  Хозяин: {listing.host.profile?.firstName} {listing.host.profile?.lastName}
+                  {listing.host.profile?.isVerified && (
+                    <span className="ml-2 text-xs bg-accent-500 text-white px-2 py-0.5 rounded-full">✓ Верифицирован</span>
+                  )}
+                </p>
+                <p className="text-xs text-slate-400">
+                  На LOCOS с {listing.host.createdAt ? new Date(listing.host.createdAt).getFullYear() : '—'}
+                </p>
+              </div>
             </div>
-          </div>
+          )}
 
           <hr className="my-6" />
 
@@ -95,11 +98,11 @@ export default async function ListingPage({ params }: Props) {
           </div>
 
           {/* Features */}
-          {listing.features.length > 0 && (
+          {(listing.features ?? []).length > 0 && (
             <div className="mb-6">
               <h2 className="font-semibold text-lg mb-3">Удобства</h2>
               <div className="grid grid-cols-2 gap-2">
-                {listing.features.map(f => (
+                {(listing.features ?? []).map(f => (
                   <div key={f} className="flex items-center gap-2 text-slate-600 text-sm">
                     <span>✓</span> {f.replace(/_/g, ' ')}
                   </div>

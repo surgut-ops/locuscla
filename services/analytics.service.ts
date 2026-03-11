@@ -9,7 +9,12 @@ export async function trackEvent(
   metadata?: Record<string, unknown>
 ): Promise<void> {
   await db.analyticsEventEntry.create({
-    data: { listingId, event, userId, metadata },
+    data: {
+      listingId,
+      event,
+      userId,
+      ...(metadata && { metadata: metadata as object }),
+    },
   });
 }
 

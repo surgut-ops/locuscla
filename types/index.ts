@@ -74,6 +74,7 @@ export interface IPublicUser {
   avatarUrl: string | null;
   role: UserRole;
   profile: Pick<IProfile, 'firstName' | 'lastName' | 'avgRating' | 'totalReviews' | 'isVerified'>;
+  createdAt?: Date;
 }
 
 export interface IJwtPayload {
@@ -122,6 +123,7 @@ export interface IListingImage {
   url: string;
   order: number;
   isPrimary: boolean;
+  altText?: string;
 }
 
 export interface IListingSummary {

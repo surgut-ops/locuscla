@@ -84,7 +84,7 @@ export function createHandler(handler: HandlerFn, options?: {
         return apiError(
           err.message,
           err.statusCode,
-          err.code,
+          undefined,
           err instanceof ValidationError ? err.fields : undefined
         );
       }
