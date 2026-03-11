@@ -1,6 +1,8 @@
 // Centralized typed error classes
 // All service functions throw these; route handlers catch them
 
+import { NextResponse } from 'next/server';
+
 export class AppError extends Error {
   public readonly statusCode: number;
   public readonly isOperational: boolean;
@@ -46,13 +48,13 @@ export class ConflictError extends AppError {
   }
 }
 
-export function handleRouteError(error: unknown): Response {
+export function handleRouteError(error: unknown): NextResponse {
   if (error instanceof ValidationError) {
-    return Response.json({ error: error.message, fields: error.fields }, { status: 400 });
+    return NextResponse.json({ error: error.message, fields: error.fields }, { status: 400 });
   }
   if (error instanceof AppError) {
-    return Response.json({ error: error.message }, { status: error.statusCode });
+    return NextResponse.json({ error: error.message }, { status: error.statusCode });
   }
   console.error('Unhandled error:', error);
-  return Response.json({ error: 'Internal server error' }, { status: 500 });
+  return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
 }
