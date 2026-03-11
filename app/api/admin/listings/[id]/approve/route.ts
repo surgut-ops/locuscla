@@ -3,6 +3,8 @@ import { approveListing } from '@/services/moderation.service';
 import { requireRole } from '@/lib/auth';
 import { handleRouteError } from '@/lib/errors';
 
+export const dynamic = 'force-dynamic';
+
 export async function PATCH(req: NextRequest, { params }: { params: { id: string } }): Promise<NextResponse> {
   try {
     await requireRole('admin');
