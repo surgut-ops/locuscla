@@ -1,0 +1,34 @@
+# LOCOS — Local development services
+# Run: docker compose up -d
+
+services:
+  postgres:
+    image: postgres:16
+    container_name: locos-postgres
+    environment:
+      POSTGRES_DB: locos_dev
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - locos_pgdata:/var/lib/postgresql/data
+
+  typesense:
+    image: typesense/typesense:0.25.2
+    container_name: locos-typesense
+    command: --data-dir /data --api-key=local-typesense-key --enable-cors
+    ports:
+      - "8108:8108"
+    volumes:
+      - locos_tsdata:/data
+
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: locos-qdrant
+    ports:
+      - "6333:6333"
+
+volumes:
+  locos_pgdata:
+  locos_tsdata:

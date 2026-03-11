@@ -1,0 +1,419 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DATABASE_URL_DIRECT")
+}
+
+// ─── ENUMS ────────────────────────────────────────────────────────────────────
+
+enum UserRole {
+  user
+  host
+  admin
+}
+
+enum ListingType {
+  apartment
+  house
+  room
+  studio
+}
+
+enum ListingStatus {
+  draft
+  pending
+  active
+  paused
+  rejected
+}
+
+enum BookingStatus {
+  pending
+  confirmed
+  cancelled
+  completed
+}
+
+enum PaymentStatus {
+  unpaid
+  paid
+  refunded
+}
+
+enum ReportReason {
+  scam
+  inappropriate_content
+  wrong_information
+  duplicate
+  other
+}
+
+enum ReportStatus {
+  open
+  under_review
+  resolved
+  dismissed
+}
+
+enum AnalyticsEvent {
+  view
+  click
+  book
+  favorite
+  message
+}
+
+enum ListingFeature {
+  wifi
+  parking
+  pool
+  gym
+  air_conditioning
+  heating
+  washer
+  dryer
+  kitchen
+  tv
+  elevator
+  balcony
+  garden
+  pet_friendly
+  smoking_allowed
+  wheelchair_accessible
+}
+
+// ─── USERS ────────────────────────────────────────────────────────────────────
+
+model User {
+  id            String    @id @default(uuid())
+  email         String    @unique
+  passwordHash  String
+  role          UserRole  @default(user)
+  emailVerified Boolean   @default(false)
+  avatarUrl     String?
+  phone         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  deletedAt     DateTime?
+
+  profile       Profile?
+  listings      Listing[]
+  sessions      Session[]
+  guestBookings Booking[] @relation("GuestBookings")
+  hostBookings  Booking[] @relation("HostBookings")
+  sentMessages  Message[]
+  conversations ConversationParticipant[]
+  reviewsGiven  Review[]  @relation("ReviewsGiven")
+  favorites     Favorite[]
+  reports       Report[]
+
+  @@index([email])
+  @@index([deletedAt])
+  @@map("users")
+}
+
+model Profile {
+  id           String   @id @default(uuid())
+  userId       String   @unique
+  firstName    String   @db.VarChar(100)
+  lastName     String   @db.VarChar(100)
+  bio          String?  @db.VarChar(1000)
+  avgRating    Decimal  @default(0) @db.Decimal(3, 2)
+  totalReviews Int      @default(0)
+  isVerified   Boolean  @default(false)
+  languages    String[]
+  city         String?
+  country      String?
+  lat          Decimal? @db.Decimal(10, 8)
+  lng          Decimal? @db.Decimal(11, 8)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("profiles")
+}
+
+model Session {
+  id           String   @id @default(uuid())
+  userId       String
+  refreshToken String   @unique
+  userAgent    String?
+  ipAddress    String?
+  expiresAt    DateTime
+  createdAt    DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([refreshToken])
+  @@map("sessions")
+}
+
+// ─── LISTINGS ─────────────────────────────────────────────────────────────────
+
+model Listing {
+  id                String        @id @default(uuid())
+  hostId            String
+  title             String        @db.VarChar(255)
+  description       String
+  type              ListingType
+  status            ListingStatus @default(draft)
+  pricePerNight     Decimal       @db.Decimal(10, 2)
+  currency          String        @default("RUB") @db.VarChar(3)
+  maxGuests         Int
+  bedrooms          Int
+  bathrooms         Int
+  areaM2            Decimal?      @db.Decimal(8, 2)
+  address           String
+  city              String        @db.VarChar(100)
+  country           String        @default("Russia") @db.VarChar(100)
+  lat               Decimal       @db.Decimal(10, 8)
+  lng               Decimal       @db.Decimal(11, 8)
+  avgRating         Decimal       @default(0) @db.Decimal(3, 2)
+  totalReviews      Int           @default(0)
+  totalBookings     Int           @default(0)
+  aiPriceSuggestion Decimal?      @db.Decimal(10, 2)
+  aiLastAnalyzedAt  DateTime?
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+  deletedAt         DateTime?
+
+  host         User                  @relation(fields: [hostId], references: [id])
+  images       ListingImage[]
+  features     ListingFeatureEntry[]
+  availability ListingAvailability[]
+  bookings     Booking[]
+  reviews      Review[]
+  favorites    Favorite[]
+  conversations Conversation[]
+  analyticsEvents AnalyticsEventEntry[]
+  analyticsDaily  AnalyticsDaily[]
+  reports      Report[]
+
+  @@index([hostId])
+  @@index([city, status, deletedAt])
+  @@index([lat, lng])
+  @@index([pricePerNight])
+  @@index([status, deletedAt])
+  @@index([createdAt])
+  @@map("listings")
+}
+
+model ListingImage {
+  id        String   @id @default(uuid())
+  listingId String
+  url       String
+  order     Int      @default(0)
+  isPrimary Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  listing Listing @relation(fields: [listingId], references: [id], onDelete: Cascade)
+
+  @@index([listingId])
+  @@map("listing_images")
+}
+
+model ListingFeatureEntry {
+  id        String         @id @default(uuid())
+  listingId String
+  feature   ListingFeature
+
+  listing Listing @relation(fields: [listingId], references: [id], onDelete: Cascade)
+
+  @@unique([listingId, feature])
+  @@index([listingId])
+  @@map("listing_features")
+}
+
+model ListingAvailability {
+  id        String   @id @default(uuid())
+  listingId String
+  date      DateTime @db.Date
+  isBlocked Boolean  @default(false)
+  reason    String?
+
+  listing Listing @relation(fields: [listingId], references: [id], onDelete: Cascade)
+
+  @@unique([listingId, date])
+  @@index([listingId])
+  @@map("listing_availability")
+}
+
+// ─── BOOKINGS ─────────────────────────────────────────────────────────────────
+
+model Booking {
+  id              String        @id @default(uuid())
+  listingId       String
+  guestId         String
+  hostId          String
+  checkIn         DateTime      @db.Date
+  checkOut        DateTime      @db.Date
+  guests          Int
+  status          BookingStatus @default(pending)
+  totalPrice      Decimal       @db.Decimal(10, 2)
+  serviceFee      Decimal       @db.Decimal(10, 2)
+  stripePaymentId String?
+  paymentStatus   PaymentStatus @default(unpaid)
+  cancelledAt     DateTime?
+  cancelReason    String?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  listing Listing @relation(fields: [listingId], references: [id])
+  guest   User    @relation("GuestBookings", fields: [guestId], references: [id])
+  host    User    @relation("HostBookings", fields: [hostId], references: [id])
+  review  Review?
+
+  @@index([listingId, checkIn, checkOut])
+  @@index([guestId])
+  @@index([hostId])
+  @@index([status])
+  @@map("bookings")
+}
+
+// ─── MESSAGING ────────────────────────────────────────────────────────────────
+
+model Conversation {
+  id            String   @id @default(uuid())
+  listingId     String?
+  lastMessageAt DateTime @default(now())
+  isArchived    Boolean  @default(false)
+  createdAt     DateTime @default(now())
+
+  listing      Listing?                 @relation(fields: [listingId], references: [id])
+  participants ConversationParticipant[]
+  messages     Message[]
+
+  @@index([lastMessageAt])
+  @@map("conversations")
+}
+
+model ConversationParticipant {
+  id             String   @id @default(uuid())
+  conversationId String
+  userId         String
+  joinedAt       DateTime @default(now())
+
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  user         User         @relation(fields: [userId], references: [id])
+
+  @@unique([conversationId, userId])
+  @@index([userId])
+  @@map("conversation_participants")
+}
+
+model Message {
+  id             String   @id @default(uuid())
+  conversationId String
+  senderId       String
+  content        String
+  attachmentUrl  String?
+  isRead         Boolean  @default(false)
+  createdAt      DateTime @default(now())
+
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  sender       User         @relation(fields: [senderId], references: [id])
+
+  @@index([conversationId, createdAt])
+  @@index([senderId])
+  @@map("messages")
+}
+
+// ─── REVIEWS ──────────────────────────────────────────────────────────────────
+
+model Review {
+  id        String   @id @default(uuid())
+  listingId String
+  bookingId String   @unique
+  authorId  String
+  rating    Int
+  comment   String
+  reply     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  listing Listing @relation(fields: [listingId], references: [id])
+  booking Booking @relation(fields: [bookingId], references: [id])
+  author  User    @relation("ReviewsGiven", fields: [authorId], references: [id])
+
+  @@index([listingId])
+  @@index([authorId])
+  @@map("reviews")
+}
+
+// ─── FAVORITES & REPORTS ──────────────────────────────────────────────────────
+
+model Favorite {
+  id        String   @id @default(uuid())
+  userId    String
+  listingId String
+  createdAt DateTime @default(now())
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  listing Listing @relation(fields: [listingId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, listingId])
+  @@index([userId])
+  @@map("favorites")
+}
+
+model Report {
+  id          String       @id @default(uuid())
+  reporterId  String
+  listingId   String
+  reason      ReportReason
+  description String?
+  status      ReportStatus @default(open)
+  resolvedAt  DateTime?
+  resolvedBy  String?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  reporter User    @relation(fields: [reporterId], references: [id])
+  listing  Listing @relation(fields: [listingId], references: [id])
+
+  @@index([status])
+  @@index([listingId])
+  @@map("reports")
+}
+
+// ─── ANALYTICS ────────────────────────────────────────────────────────────────
+
+model AnalyticsEventEntry {
+  id        String         @id @default(uuid())
+  listingId String
+  userId    String?
+  event     AnalyticsEvent
+  metadata  Json?
+  createdAt DateTime       @default(now())
+
+  listing Listing @relation(fields: [listingId], references: [id], onDelete: Cascade)
+
+  @@index([listingId, createdAt])
+  @@index([createdAt])
+  @@map("analytics_events")
+}
+
+model AnalyticsDaily {
+  id          String   @id @default(uuid())
+  listingId   String
+  date        DateTime @db.Date
+  views       Int      @default(0)
+  uniqueViews Int      @default(0)
+  bookings    Int      @default(0)
+  revenue     Decimal  @default(0) @db.Decimal(12, 2)
+  avgRating   Decimal? @db.Decimal(3, 2)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  listing Listing @relation(fields: [listingId], references: [id], onDelete: Cascade)
+
+  @@unique([listingId, date])
+  @@index([listingId, date])
+  @@map("analytics_daily")
+}
