@@ -4,6 +4,9 @@ import './globals.css';
 
 const inter = Inter({ subsets: ['latin', 'cyrillic'], variable: '--font-inter' });
 
+// Отключаем статическую генерацию — приложение использует cookies, БД, auth
+export const dynamic = 'force-dynamic';
+
 export const metadata: Metadata = {
   title: { default: 'LOCOS — Аренда жилья', template: '%s | LOCOS' },
   description: 'Современная платформа аренды жилья с AI-аналитикой',
