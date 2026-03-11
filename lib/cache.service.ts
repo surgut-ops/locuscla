@@ -5,10 +5,11 @@
 import { Redis } from '@upstash/redis';
 
 // ─── Client singleton ─────────────────────────────────────────────────────────
+// Placeholders for build when env vars are missing. Set REDIS_URL + REDIS_TOKEN in Vercel for production.
 
 const redis = new Redis({
-  url: process.env.REDIS_URL!,
-  token: process.env.REDIS_TOKEN!,
+  url: process.env.REDIS_URL || 'https://placeholder.upstash.io',
+  token: process.env.REDIS_TOKEN || 'build-placeholder',
 });
 
 // ─── TTL constants (seconds) ──────────────────────────────────────────────────

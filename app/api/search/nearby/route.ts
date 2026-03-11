@@ -3,6 +3,8 @@ import { nearbySearch } from '@/services/search.service';
 import { handleRouteError } from '@/lib/errors';
 import { safeParseFloat, safeParseInt } from '@/lib/utils';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(req: NextRequest): Promise<NextResponse> {
   try {
     const sp = req.nextUrl.searchParams;
