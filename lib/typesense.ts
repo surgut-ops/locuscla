@@ -1,13 +1,17 @@
 import Typesense from 'typesense';
 import type { CollectionCreateSchema } from 'typesense/lib/Typesense/Collections';
 
+// Placeholders for build when env vars are missing. Set in Vercel for production.
+const typesenseHost = process.env.TYPESENSE_HOST || 'placeholder.typesense.net';
+const typesenseApiKey = process.env.TYPESENSE_API_KEY || 'build-placeholder';
+
 export const typesenseClient = new Typesense.Client({
   nodes: [{
-    host: process.env.TYPESENSE_HOST!,
+    host: typesenseHost,
     port: parseInt(process.env.TYPESENSE_PORT ?? '443'),
     protocol: (process.env.TYPESENSE_PROTOCOL ?? 'https') as 'https' | 'http',
   }],
-  apiKey: process.env.TYPESENSE_API_KEY!,
+  apiKey: typesenseApiKey,
   connectionTimeoutSeconds: 10,
   retryIntervalSeconds: 0.1,
   numRetries: 3,

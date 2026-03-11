@@ -1,8 +1,12 @@
 import { QdrantClient } from '@qdrant/js-client-rest';
 
+// Placeholders for build when env vars are missing. Set in Vercel for production.
+const qdrantUrl = process.env.QDRANT_URL || 'https://placeholder.qdrant.io';
+const qdrantApiKey = process.env.QDRANT_API_KEY || 'build-placeholder';
+
 export const qdrantClient = new QdrantClient({
-  url: process.env.QDRANT_URL!,
-  apiKey: process.env.QDRANT_API_KEY!,
+  url: qdrantUrl,
+  apiKey: qdrantApiKey,
 });
 
 export const LISTINGS_VECTORS_COLLECTION = 'listings_vectors';

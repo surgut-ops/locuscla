@@ -3,6 +3,8 @@ import { searchSchema } from '@/lib/validators';
 import { searchListings } from '@/services/search.service';
 import { handleRouteError } from '@/lib/errors';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(req: NextRequest): Promise<NextResponse> {
   try {
     const params = Object.fromEntries(req.nextUrl.searchParams.entries());

@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { semanticSearch } from '@/services/search.service';
 import { handleRouteError } from '@/lib/errors';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(req: NextRequest): Promise<NextResponse> {
   try {
     const q = req.nextUrl.searchParams.get('q');
