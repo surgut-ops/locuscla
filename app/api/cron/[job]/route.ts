@@ -5,24 +5,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 const JOBS: Record<string, () => Promise<void>> = {
-  'sync-typesense': async () => {
-    const { default: run } = await import('@/workers/sync-typesense');
-  },
-  'sync-qdrant': async () => {
-    const { default: run } = await import('@/workers/sync-qdrant');
-  },
-  'analytics-rollup': async () => {
-    const { default: run } = await import('@/workers/analytics-rollup');
-  },
-  'price-analysis': async () => {
-    const { default: run } = await import('@/workers/price-analysis');
-  },
-  'fraud-scan': async () => {
-    const { default: run } = await import('@/workers/fraud-scan');
-  },
-  'expire-bookings': async () => {
-    const { default: run } = await import('@/workers/expire-bookings');
-  },
+  'sync-typesense': () => import('@/workers/sync-typesense').then(() => {}),
+  'sync-qdrant': () => import('@/workers/sync-qdrant').then(() => {}),
+  'analytics-rollup': () => import('@/workers/analytics-rollup').then(() => {}),
+  'price-analysis': () => import('@/workers/price-analysis').then(() => {}),
+  'fraud-scan': () => import('@/workers/fraud-scan').then(() => {}),
+  'expire-bookings': () => import('@/workers/expire-bookings').then(() => {}),
 };
 
 export async function GET(

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createListingSchema, searchSchema } from '@/lib/validators';
+import { createListingSchema } from '@/lib/validators';
 import { createListing, getListings } from '@/services/listing.service';
-import { requireRole, getAuthUser } from '@/lib/auth';
+import { requireRole } from '@/lib/auth';
 import { handleRouteError } from '@/lib/errors';
 import { safeParseInt } from '@/lib/utils';
 

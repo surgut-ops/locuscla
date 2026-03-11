@@ -3,7 +3,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { ZodError } from 'zod';
-import { AppError, ValidationError, RateLimitError, UnauthorizedError } from './errors';
+import { AppError, ValidationError, UnauthorizedError } from './errors';
 import { checkRateLimit } from './cache.service';
 
 // ─── Response types ───────────────────────────────────────────────────────────
