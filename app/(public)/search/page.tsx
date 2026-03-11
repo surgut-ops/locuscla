@@ -1,8 +1,8 @@
 'use client';
 import { useState, useEffect } from 'react';
-import type { IListingSummary, ISearchParams } from '@/types';
+import type { IListingSummary } from '@/types';
 import { api } from '@/lib/api-client';
-import { cn, formatPrice } from '@/lib/utils';
+import { formatPrice } from '@/lib/utils';
 
 export default function SearchPage() {
   const [listings, setListings] = useState<IListingSummary[]>([]);
@@ -25,7 +25,10 @@ export default function SearchPage() {
     }
   };
 
-  useEffect(() => { search(); }, []);
+  useEffect(() => {
+    void search();
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- run only on mount
+  }, []);
 
   return (
     <div className="min-h-screen bg-gray-50">
