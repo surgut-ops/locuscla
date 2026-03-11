@@ -51,3 +51,36 @@
 - `NEXT_PUBLIC_APP_URL`
 
 Остальное можно добавить позже.
+
+---
+
+## Проверка настроек Vercel (по вашему скрину)
+
+### Исправьте:
+
+1. **TYPESENSE_HOST** — у вас опечатка:
+   - Сейчас: `zck4euxv3518d7gap.1.a1.typesense.net` (точка перед `1`)
+   - Правильно: `zck4euxv3518d7gap-1.a1.typesense.net` (дефис `-1`)
+
+2. **QDRANT_URL** — проверьте, что указан полный URL без лишних символов:
+   - Правильно: `https://0aaa6dac-b0eb-4392-88f4-2a336ac426d5.eu-west-2-0.aws.cloud.qdrant.io`
+
+3. **OPENAI_API_KEY** — сейчас пустой. Добавьте ключ с platform.openai.com (или placeholder, если AI не нужен).
+
+4. **Добавьте, если нет:**
+   - `NEXTAUTH_SECRET` — скопируйте из `.env.local` (сгенерированный ключ)
+   - `NEXT_PUBLIC_APP_URL` — например `https://locus-clau.vercel.app`
+   - `TYPESENSE_PORT` = `443`
+   - `TYPESENSE_PROTOCOL` = `https`
+
+### Neon
+
+Полную строку подключения нужно скопировать в Neon: **Connect** → выбрать **Connection pooling** → **Copy** (с snippet). Вставьте в `DATABASE_URL` и `DATABASE_URL_DIRECT` (для direct — connection string без `-pooler` в хосте).
+
+**Важно:** роль в URL должна быть `neondb_owner` (с подчёркиванием), а не `neondb.owner`.
+
+---
+
+## Ошибка «table does not exist» при билде
+
+Причина: в Neon не применена схема БД. Добавлен скрипт `vercel-build`, который при деплое делает `prisma db push` (создаёт таблицы) перед сборкой. После коммита и redeploy билд должен пройти.
