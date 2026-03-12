@@ -10,7 +10,7 @@ export default function Navbar({ onLogin, onRegister, transparent = false }: { o
 
   const handleAddListing = () => {
     if (!user) {
-      onLogin?.();
+      (onRegister ?? onLogin)?.();
     } else {
       router.push('/listing/new');
     }

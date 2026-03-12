@@ -68,10 +68,8 @@ export default function ListingPage({ params }: { params: { id: string } }) {
   const { user, setShowAuthModal, toggleFavorite, isFavorite } = useApp();
   const listing = LISTINGS[params.id] || LISTINGS['1'];
   const [mainPhoto, setMainPhoto] = useState(0);
-  const [saved, setSaved] = useState(false);
   const [activeTab, setActiveTab] = useState<'desc' | 'amenities' | 'reviews' | 'location'>('desc');
   const [showPhone, setShowPhone] = useState(false);
-  const [showBooking, setShowBooking] = useState(false);
 
   return (
     <div style={{ minHeight: '100vh', background: '#F7F9FF', fontFamily: 'Manrope, sans-serif' }}>

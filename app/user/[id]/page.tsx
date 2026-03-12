@@ -8,6 +8,7 @@ import { LISTINGS } from '@/lib/data';
 
 export default function UserPublicPage({ params }: { params: { id: string } }) {
   const id = params.id;
+  const { setShowAuthModal } = useApp();
   const [tab, setTab] = useState<'listings' | 'reviews'>('listings');
 
   // Get user's listings from LISTINGS (mock: first 2 for demo user)
