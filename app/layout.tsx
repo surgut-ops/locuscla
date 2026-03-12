@@ -1,22 +1,23 @@
 import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
 import './globals.css';
+import { AppProvider } from '@/context/AppContext';
 
-const inter = Inter({ subsets: ['latin', 'cyrillic'], variable: '--font-inter' });
-
-// Отключаем статическую генерацию — приложение использует cookies, БД, auth
 export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
-  title: { default: 'LOCOS — Аренда жилья', template: '%s | LOCOS' },
-  description: 'Современная платформа аренды жилья с AI-аналитикой',
-  keywords: ['аренда', 'квартира', 'жильё', 'LOCOS'],
+  title: 'Locus — AI-маркетплейс аренды жилья',
+  description: 'Найдите идеальное жильё с AI-верификацией, честными ценами и безопасными сделками',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="ru" className={inter.variable}>
-      <body className="min-h-screen bg-white font-sans antialiased">{children}</body>
+    <html lang="ru" suppressHydrationWarning>
+      <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+      </head>
+      <body>
+        <AppProvider>{children}</AppProvider>
+      </body>
     </html>
   );
 }
