@@ -1,6 +1,7 @@
 'use client';
 import { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import Navbar from '@/components/Navbar';
 import AuthModal from '@/components/AuthModal';
 import { useApp } from '@/context/AppContext';
@@ -136,7 +137,7 @@ export default function AdminPage() {
                 <h3 style={{ fontSize:16,fontWeight:800,color:'var(--text)',marginBottom:16 }}>Последние объявления</h3>
                 {LISTINGS.slice(0,5).map(l => (
                   <div key={l.id} style={{ display:'flex',gap:12,padding:'10px 0',borderBottom:'1px solid var(--border)',alignItems:'center' }}>
-                    <img src={l.images[0]} alt="" style={{ width:44,height:44,objectFit:'cover',borderRadius:9,flexShrink:0 }}/>
+                    <Image src={l.images[0]} alt="" width={44} height={44} style={{ objectFit:'cover',borderRadius:9,flexShrink:0 }}/>
                     <div style={{ flex:1,minWidth:0 }}>
                       <div style={{ fontWeight:700,fontSize:13,color:'var(--text)',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap' }}>{l.title}</div>
                       <div style={{ fontSize:11,color:'var(--text3)' }}>{l.location} · {l.price.toLocaleString('ru-RU')} ₽</div>
@@ -196,7 +197,7 @@ export default function AdminPage() {
                         <td style={{ padding:'11px 14px',fontSize:12,color:'var(--text3)',fontWeight:700 }}>#{l.id}</td>
                         <td style={{ padding:'11px 14px' }}>
                           <div style={{ display:'flex',alignItems:'center',gap:10 }}>
-                            <img src={l.images[0]} alt="" style={{ width:38,height:30,objectFit:'cover',borderRadius:7 }}/>
+                            <Image src={l.images[0]} alt="" width={38} height={30} style={{ objectFit:'cover',borderRadius:7 }}/>
                             <div style={{ fontSize:13,fontWeight:700,color:'var(--text)',maxWidth:200,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap' }}>{l.title}</div>
                           </div>
                         </td>

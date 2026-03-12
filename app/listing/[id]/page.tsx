@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useApp } from '@/context/AppContext';
 import { IconStar, IconShield, IconHeart, IconMapPin, IconShare, IconPhone, IconMessage, IconBed, IconArea, IconFloor, IconCalendar, IconWifi, IconParking, IconPet, IconBrain, IconChevron, IconCheck } from '@/components/Icons';
@@ -156,12 +157,12 @@ export default function ListingPage({ params }: { params: { id: string } }) {
         {/* Photo gallery */}
         <div className="gallery-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 40, borderRadius: 20, overflow: 'hidden', height: 480 }}>
           <div style={{ position: 'relative', height: '100%', cursor: 'pointer' }}>
-            <img src={listing.images[mainPhoto]} alt="Main" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            <Image src={listing.images[mainPhoto]} alt="Main" fill sizes="50vw" style={{ objectFit: 'cover' }} />
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gridTemplateRows: '1fr 1fr', gap: 12, height: '100%' }}>
             {listing.images.slice(1, 5).map((img, i) => (
               <div key={i} style={{ position: 'relative', overflow: 'hidden', cursor: 'pointer', borderRadius: 4 }} onClick={() => setMainPhoto(i + 1)}>
-                <img src={img} alt={`photo${i + 2}`} style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.3s' }}
+                <Image src={img} alt={`photo${i + 2}`} fill sizes="25vw" style={{ objectFit: 'cover', transition: 'transform 0.3s' }}
                   onMouseEnter={e => (e.target as HTMLImageElement).style.transform = 'scale(1.05)'}
                   onMouseLeave={e => (e.target as HTMLImageElement).style.transform = 'scale(1)'}
                 />
@@ -328,7 +329,7 @@ export default function ListingPage({ params }: { params: { id: string } }) {
             <div style={{ background: '#fff', borderRadius: 20, padding: '24px 28px', boxShadow: '0 2px 16px rgba(0,0,0,0.07)' }}>
               <h3 style={{ fontSize: 17, fontWeight: 800, marginBottom: 20 }}>Арендодатель</h3>
               <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-                <img src={listing.owner.photo} alt={listing.owner.name} style={{ width: 64, height: 64, borderRadius: '50%', objectFit: 'cover' }} />
+                <Image src={listing.owner.photo} alt={listing.owner.name} width={64} height={64} style={{ borderRadius: '50%', objectFit: 'cover' }} />
                 <div style={{ flex: 1 }}>
                   <div style={{ fontWeight: 800, fontSize: 16, marginBottom: 4 }}>{listing.owner.name}</div>
                   <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>

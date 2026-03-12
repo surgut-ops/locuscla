@@ -1,6 +1,7 @@
 'use client';
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import Navbar from '@/components/Navbar';
 import AuthModal from '@/components/AuthModal';
 import { useApp } from '@/context/AppContext';
@@ -91,6 +92,7 @@ export default function ProfilePage() {
           <div style={{ maxWidth:1280,margin:'0 auto',display:'flex',alignItems:'center',gap:24,flexWrap:'wrap' }}>
             <div onClick={()=>avatarInputRef.current?.click()} title="Нажмите для смены фото" style={{ position:'relative',cursor:'pointer',width:88,height:88,flexShrink:0 }}>
               {avatarSrc ? (
+                // eslint-disable-next-line @next/next/no-img-element -- data URLs from file upload not supported by next/image
                 <img src={avatarSrc} alt="Аватар" style={{ width:88,height:88,borderRadius:26,objectFit:'cover',border:'3px solid rgba(255,255,255,0.3)',boxShadow:'0 8px 30px rgba(0,87,231,0.4)' }} />
               ) : (
                 <div style={{ width:88,height:88,borderRadius:26,background:'linear-gradient(135deg,#0057E7,#0EA5E9)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:36,fontWeight:900,color:'#fff',boxShadow:'0 8px 30px rgba(0,87,231,0.4)' }}>{user.name[0]}</div>
@@ -198,7 +200,7 @@ export default function ProfilePage() {
                   <div key={l.id} style={{ background:'var(--surface)',borderRadius:18,overflow:'hidden',boxShadow:'var(--shadow)' }}>
                     <Link href={`/listing/${l.id}`} style={{ textDecoration:'none' }}>
                       <div style={{ position:'relative',height:180 }}>
-                        <img src={l.images[0]} alt={l.title} style={{ width:'100%',height:'100%',objectFit:'cover' }}/>
+                        <Image src={l.images[0]} alt={l.title} fill sizes="(max-width:768px) 100vw, 33vw" style={{ objectFit:'cover' }}/>
                         <div style={{ position:'absolute',bottom:8,right:10,background:'rgba(0,0,0,0.7)',backdropFilter:'blur(6px)',color:'#fff',borderRadius:8,padding:'3px 10px',fontSize:14,fontWeight:900 }}>{l.price.toLocaleString('ru-RU')} ₽</div>
                       </div>
                     </Link>
@@ -222,7 +224,7 @@ export default function ProfilePage() {
               <div style={{ display:'flex',flexDirection:'column',gap:14 }}>
                 {myListings.map(l => (
                   <div key={l.id} style={{ background:'var(--surface)',borderRadius:16,padding:'16px',display:'flex',gap:16,boxShadow:'var(--shadow)',alignItems:'flex-start',flexWrap:'wrap' }}>
-                    <img src={l.images[0]} alt="" style={{ width:130,height:90,objectFit:'cover',borderRadius:12,flexShrink:0 }}/>
+                    <Image src={l.images[0]} alt="" width={130} height={90} style={{ objectFit:'cover',borderRadius:12,flexShrink:0 }}/>
                     <div style={{ flex:1,minWidth:200 }}>
                       <h4 style={{ fontWeight:800,fontSize:15,color:'var(--text)',marginBottom:4 }}>{l.title}</h4>
                       <p style={{ color:'var(--text3)',fontSize:12,marginBottom:8 }}>{l.location}</p>

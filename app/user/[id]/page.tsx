@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import Navbar from '@/components/Navbar';
 import { useApp } from '@/context/AppContext';
 import { LISTINGS } from '@/lib/data';
@@ -111,7 +112,7 @@ export default function UserPublicPage({ params }: { params: { id: string } }) {
               <Link key={listing.id} href={`/listing/${listing.id}`} style={{ textDecoration: 'none' }}>
                 <div style={{ background: 'var(--card-bg)', borderRadius: '16px', overflow: 'hidden', border: '1px solid var(--border)', display: 'flex', boxShadow: '0 2px 12px rgba(0,0,0,0.06)' }}>
                   {listing.img ? (
-                    <img src={listing.img} alt={listing.title} style={{ width: '120px', height: '100px', objectFit: 'cover', flexShrink: 0 }} />
+                    <Image src={listing.img} alt={listing.title} width={120} height={100} style={{ objectFit: 'cover', flexShrink: 0 }} />
                   ) : (
                     <div style={{ width: '120px', height: '100px', background: 'var(--surface2)', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text3)' }}>—</div>
                   )}

@@ -1,6 +1,7 @@
 'use client';
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import Navbar from '@/components/Navbar';
 import AuthModal from '@/components/AuthModal';
@@ -199,7 +200,7 @@ function ListingCard({ item }: { item: typeof LISTINGS[0] }) {
       <div onMouseEnter={()=>setHov(true)} onMouseLeave={()=>setHov(false)}
         style={{ borderRadius:20,overflow:'hidden',background:'var(--surface)',boxShadow:hov?'var(--shadow-lg)':'var(--shadow)',transition:'all 0.35s cubic-bezier(0.34,1.56,0.64,1)',transform:hov?'translateY(-5px)':'translateY(0)',cursor:'pointer' }}>
         <div style={{ position:'relative',height:210,overflow:'hidden' }}>
-          <img src={item.images[0]} alt={item.title} style={{ width:'100%',height:'100%',objectFit:'cover',transition:'transform 0.5s',transform:hov?'scale(1.06)':'scale(1)' }} />
+          <Image src={item.images[0]} alt={item.title} fill sizes="(max-width:768px) 100vw, 33vw" style={{ objectFit:'cover',transition:'transform 0.5s',transform:hov?'scale(1.06)':'scale(1)' }} />
           <div style={{ position:'absolute',inset:0,background:'linear-gradient(to bottom,transparent 40%,rgba(0,0,0,0.6) 100%)' }}/>
           {item.badge && <div style={{ position:'absolute',top:12,left:12,background:item.badge==='Топ'?'var(--orange)':item.badge==='Новое'?'var(--green)':item.badge==='Премиум'?'var(--purple)':'var(--yellow)',color:'#fff',fontSize:10,fontWeight:800,padding:'4px 11px',borderRadius:20,textTransform:'uppercase',letterSpacing:'0.8px' }}>{item.badge}</div>}
           <button onClick={e=>{e.preventDefault();toggleFavorite(item.id);}} style={{ position:'absolute',top:10,right:10,background:fav?'var(--red)':'rgba(0,0,0,0.45)',backdropFilter:'blur(8px)',border:'none',borderRadius:'50%',width:36,height:36,display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',transition:'all 0.2s',transform:hov||fav?'scale(1.1)':'scale(1)' }}>
@@ -470,7 +471,7 @@ export default function HomePage() {
                   onMouseEnter={e=>{(e.currentTarget as HTMLElement).style.transform='translateY(-4px)';(e.currentTarget as HTMLElement).style.boxShadow='var(--shadow-lg)';}}
                   onMouseLeave={e=>{(e.currentTarget as HTMLElement).style.transform='translateY(0)';(e.currentTarget as HTMLElement).style.boxShadow='var(--shadow)';}}
                 >
-                  <img src={cat.img} alt={cat.label} style={{ width:'100%',height:'100%',objectFit:'cover' }}/>
+                  <Image src={cat.img} alt={cat.label} fill sizes="(max-width:768px) 50vw, 25vw" style={{ objectFit:'cover' }}/>
                   <div style={{ position:'absolute',inset:0,background:'linear-gradient(to bottom,rgba(0,0,0,0.05),rgba(0,0,0,0.7))' }}/>
                   <div style={{ position:'absolute',bottom:12,left:14 }}>
                     <div style={{ color:'#fff',fontWeight:800,fontSize:15 }}>{cat.label}</div>
@@ -597,7 +598,7 @@ export default function HomePage() {
                 onMouseLeave={e=>{(e.currentTarget as HTMLElement).style.transform='translateY(0)';(e.currentTarget as HTMLElement).style.boxShadow='var(--shadow)';}}
               >
                 <div style={{ height:170,overflow:'hidden',position:'relative' }}>
-                  <img src={step.img} alt="" style={{ width:'100%',height:'100%',objectFit:'cover' }}/>
+                  <Image src={step.img} alt="" fill sizes="(max-width:768px) 100vw, 33vw" style={{ objectFit:'cover' }}/>
                   <div style={{ position:'absolute',inset:0,background:'linear-gradient(135deg,rgba(0,87,231,0.65),transparent)' }}/>
                   <div style={{ position:'absolute',top:16,left:18,fontFamily:"'Unbounded',sans-serif",fontSize:40,fontWeight:900,color:'rgba(255,255,255,0.2)',lineHeight:1 }}>{step.n}</div>
                 </div>

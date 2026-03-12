@@ -2,6 +2,7 @@
 import { useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import Navbar from '@/components/Navbar';
 import AuthModal from '@/components/AuthModal';
 import { useApp } from '@/context/AppContext';
@@ -183,7 +184,7 @@ function SearchContent() {
                     onMouseLeave={e=>{(e.currentTarget as HTMLElement).style.transform='translateY(0)';(e.currentTarget as HTMLElement).style.boxShadow='var(--shadow)';}}
                   >
                     <div style={{ position:'relative',height:200,overflow:'hidden' }}>
-                      <img src={item.images[0]} alt={item.title} style={{ width:'100%',height:'100%',objectFit:'cover' }}/>
+                      <Image src={item.images[0]} alt={item.title} fill sizes="(max-width:768px) 100vw, 33vw" style={{ objectFit:'cover' }}/>
                       {item.badge && <div style={{ position:'absolute',top:12,left:12,background:item.badge==='Топ'?'var(--orange)':item.badge==='Новое'?'var(--green)':'var(--purple)',color:'#fff',fontSize:10,fontWeight:800,padding:'4px 11px',borderRadius:20,textTransform:'uppercase' }}>{item.badge}</div>}
                       <button onClick={e=>{e.preventDefault();toggleFavorite(item.id);}} style={{ position:'absolute',top:10,right:10,background:'rgba(0,0,0,0.45)',backdropFilter:'blur(8px)',border:'none',borderRadius:'50%',width:34,height:34,display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer' }}>
                         <svg width="15" height="15" fill={isFavorite(item.id)?"#fff":"none"} stroke="#fff" strokeWidth="2" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
@@ -220,8 +221,8 @@ function SearchContent() {
                     onMouseEnter={e=>{(e.currentTarget as HTMLElement).style.transform='translateX(3px)';(e.currentTarget as HTMLElement).style.boxShadow='var(--shadow-lg)';}}
                     onMouseLeave={e=>{(e.currentTarget as HTMLElement).style.transform='translateX(0)';(e.currentTarget as HTMLElement).style.boxShadow='var(--shadow)';}}
                   >
-                    <div style={{ position:'relative',width:220,minWidth:180,flexShrink:0 }}>
-                      <img src={item.images[0]} alt="" style={{ width:'100%',height:'100%',minHeight:140,objectFit:'cover' }}/>
+                    <div style={{ position:'relative',width:220,minWidth:180,height:140,flexShrink:0 }}>
+                      <Image src={item.images[0]} alt="" fill sizes="220px" style={{ objectFit:'cover' }}/>
                       {item.badge && <div style={{ position:'absolute',top:10,left:10,background:'var(--orange)',color:'#fff',fontSize:10,fontWeight:800,padding:'3px 9px',borderRadius:20 }}>{item.badge}</div>}
                     </div>
                     <div style={{ padding:'18px 20px 18px 0',flex:1,display:'flex',flexDirection:'column',justifyContent:'space-between',minWidth:0 }}>

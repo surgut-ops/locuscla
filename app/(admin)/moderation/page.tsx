@@ -1,5 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { api } from '@/lib/api-client';
 
 interface PendingListing {
@@ -57,7 +58,7 @@ export default function ModerationPage() {
           {listings.map(listing => (
             <div key={listing.id} className="bg-white rounded-xl border border-gray-200 p-5 flex gap-4">
               {listing.images[0] && (
-                <img src={listing.images[0].url} alt="" className="w-24 h-24 object-cover rounded-lg flex-shrink-0" />
+                <Image src={listing.images[0].url} alt="" width={96} height={96} className="object-cover rounded-lg flex-shrink-0" />
               )}
               <div className="flex-1 min-w-0">
                 <h3 className="font-semibold text-gray-900 truncate">{listing.title}</h3>

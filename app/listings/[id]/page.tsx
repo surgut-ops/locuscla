@@ -1,5 +1,6 @@
 // app/listings/[id]/page.tsx
 import { Metadata } from 'next';
+import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import { getListingById } from '@/services/listing.service';
 
@@ -40,9 +41,9 @@ export default async function ListingPage({ params }: Props) {
         {(listing.images ?? []).slice(0, 5).map((img, i) => (
           <div
             key={img.id}
-            className={`bg-slate-100 overflow-hidden ${i === 0 ? 'col-span-2 row-span-2' : ''}`}
+            className={`relative bg-slate-100 overflow-hidden ${i === 0 ? 'col-span-2 row-span-2' : ''}`}
           >
-            <img src={img.url} alt={img.altText ?? listing.title} className="w-full h-full object-cover" />
+            <Image src={img.url} alt={img.altText ?? listing.title} fill sizes={i === 0 ? '50vw' : '25vw'} className="object-cover" />
           </div>
         ))}
       </div>
@@ -70,9 +71,9 @@ export default async function ListingPage({ params }: Props) {
           {/* Host info */}
           {listing.host && (
             <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 rounded-full bg-slate-200 overflow-hidden">
+              <div className="relative w-10 h-10 rounded-full bg-slate-200 overflow-hidden">
                 {listing.host.avatarUrl && (
-                  <img src={listing.host.avatarUrl} alt="host" className="w-full h-full object-cover" />
+                  <Image src={listing.host.avatarUrl} alt="host" fill className="object-cover" />
                 )}
               </div>
               <div>
