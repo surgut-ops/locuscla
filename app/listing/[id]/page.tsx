@@ -372,7 +372,7 @@ export default function ListingPage({ params }: { params: { id: string } }) {
 
               {/* Buttons */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                <button onClick={() => { if (!user) setShowAuthModal(true); else { setShowBooking(true); alert('Заявка на просмотр отправлена! Хозяин свяжется с вами.'); } }} style={{ width: '100%', padding: '15px', background: 'linear-gradient(135deg, #0057E7, #0EA5E9)', color: '#fff', border: 'none', borderRadius: 14, fontSize: 16, fontWeight: 800, cursor: 'pointer', boxShadow: '0 8px 24px rgba(0,87,231,0.35)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+                <button onClick={() => { if (!user) setShowAuthModal(true); else { alert('Заявка на просмотр отправлена! Хозяин свяжется с вами.'); } }} style={{ width: '100%', padding: '15px', background: 'linear-gradient(135deg, #0057E7, #0EA5E9)', color: '#fff', border: 'none', borderRadius: 14, fontSize: 16, fontWeight: 800, cursor: 'pointer', boxShadow: '0 8px 24px rgba(0,87,231,0.35)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
                   <IconCalendar /> Записаться на просмотр
                 </button>
 
