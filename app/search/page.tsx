@@ -7,6 +7,11 @@ import AuthModal from '@/components/AuthModal';
 import { useApp } from '@/context/AppContext';
 import { LISTINGS } from '@/lib/data';
 
+const isNLPQuery = (q: string): boolean => {
+  const nlpWords = ['найди', 'хочу', 'ищу', 'нужно', 'подойдет', 'подходящее', 'помоги', 'покажи', 'подбери', 'рекомендуй', 'посоветуй', 'лучшее'];
+  return nlpWords.some(w => q.toLowerCase().includes(w));
+};
+
 function SearchContent() {
   const searchParams = useSearchParams();
   const { toggleFavorite, isFavorite } = useApp();
@@ -27,7 +32,20 @@ function SearchContent() {
 
   // Filter + sort
   let result = [...LISTINGS];
-  if (query) result = result.filter(l => l.title.toLowerCase().includes(query.toLowerCase()) || l.location.toLowerCase().includes(query.toLowerCase()) || l.city.toLowerCase().includes(query.toLowerCase()) || l.type.toLowerCase().includes(query.toLowerCase()));
+  if (query && query.trim().length > 0) {
+    if (isNLPQuery(query)) {
+      // NLP — не фильтруем по тексту, показываем все
+    } else {
+      const q = query.toLowerCase().trim();
+      result = result.filter(l =>
+        l.title.toLowerCase().includes(q) ||
+        l.location.toLowerCase().includes(q) ||
+        (l.city && l.city.toLowerCase().includes(q)) ||
+        (l.metro && l.metro.toLowerCase().includes(q)) ||
+        (l.description && l.description.toLowerCase().includes(q))
+      );
+    }
+  }
   if (propType) result = result.filter(l => l.type === propType || (propType === 'Новостройка' && l.year >= 2020));
   if (rooms.length) result = result.filter(l => rooms.some(r => r==='Студия'?l.type==='Студия':r==='4+'?l.rooms>=4:l.rooms===parseInt(r)));
   if (verified) result = result.filter(l => l.verified);
@@ -47,13 +65,25 @@ function SearchContent() {
   };
 
   const toggleRoom = (r:string) => setRooms(p=>p.includes(r)?p.filter(x=>x!==r):[...p,r]);
-  const reset = () => { setPropType(''); setRooms([]); setVerified(false); setPriceMax(''); setQuery(''); setAiResult(''); };
+  const [nlpDismissed, setNlpDismissed] = useState(false);
+  const aiMessage = query && isNLPQuery(query) && !nlpDismissed ? `AI-поиск: найдено ${result.length} вариантов по вашему запросу` : '';
+  const reset = () => { setPropType(''); setRooms([]); setVerified(false); setPriceMax(''); setQuery(''); setAiResult(''); setNlpDismissed(false); };
   const hasFilters = propType||rooms.length||verified||priceMax||query;
 
   return (
     <>
       <Navbar onLogin={()=>setAuthModal('login')} onRegister={()=>setAuthModal('register')} />
-      <div style={{ minHeight:'100vh',background:'var(--bg)',paddingTop:66 }}>
+      <style>{`
+        @media (max-width: 768px) {
+          .filter-chips { overflow-x: auto !important; white-space: nowrap !important; -webkit-overflow-scrolling: touch !important; padding-bottom: 8px !important; scrollbar-width: none !important; }
+          .filter-chips::-webkit-scrollbar { display: none; }
+          .search-results-grid { grid-template-columns: 1fr !important; }
+          .listing-card-list { flex-direction: column !important; }
+          .listing-card-list img { width: 100% !important; height: 200px !important; }
+          .search-page { padding-bottom: 80px !important; }
+        }
+      `}</style>
+      <div className="search-page" style={{ minHeight:'100vh',background:'var(--bg)',paddingTop:66 }}>
 
         {/* Search header */}
         <div style={{ background:'var(--surface)',borderBottom:'1px solid var(--border)',padding:'14px 24px',position:'sticky',top:66,zIndex:50 }}>
@@ -81,7 +111,7 @@ function SearchContent() {
 
         {/* Filter chips */}
         <div style={{ background:'var(--surface)',borderBottom:'1px solid var(--border)',padding:'10px 24px' }}>
-          <div style={{ maxWidth:1280,margin:'0 auto',display:'flex',gap:8,overflowX:'auto',scrollbarWidth:'none',alignItems:'center' }}>
+          <div className="filter-chips" style={{ maxWidth:1280,margin:'0 auto',display:'flex',gap:8,overflowX:'auto',scrollbarWidth:'none',alignItems:'center' }}>
             {TYPES.map(t=>(
               <button key={t} onClick={()=>setPropType(propType===t?'':t)} style={{ padding:'7px 14px',borderRadius:30,fontSize:13,fontWeight:700,background:propType===t?'var(--blue-mid)':'var(--surface2)',color:propType===t?'#fff':'var(--text2)',border:`1.5px solid ${propType===t?'var(--blue-mid)':'var(--border)'}`,cursor:'pointer',whiteSpace:'nowrap',flexShrink:0,transition:'all 0.15s' }}>{t}</button>
             ))}
@@ -96,8 +126,8 @@ function SearchContent() {
           </div>
         </div>
 
-        {/* AI suggestion */}
-        {aiResult && (
+        {/* AI/NLP message */}
+        {(aiResult || aiMessage) && (
           <div style={{ padding:'12px 24px',background:'linear-gradient(135deg,rgba(0,87,231,0.06),rgba(14,165,233,0.06))',borderBottom:'1px solid rgba(0,87,231,0.12)' }}>
             <div style={{ maxWidth:1280,margin:'0 auto',display:'flex',gap:10,alignItems:'flex-start' }}>
               <div style={{ width:28,height:28,borderRadius:8,background:'linear-gradient(135deg,#0057E7,#0EA5E9)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,marginTop:2 }}>
@@ -105,9 +135,9 @@ function SearchContent() {
               </div>
               <div style={{ flex:1 }}>
                 <span style={{ fontSize:13,color:'var(--blue-mid)',fontWeight:700 }}>AI-анализ: </span>
-                <span style={{ fontSize:13,color:'var(--text2)' }}>{aiResult}</span>
+                <span style={{ fontSize:13,color:'var(--text2)' }}>{aiResult || aiMessage}</span>
               </div>
-              <button onClick={()=>setAiResult('')} style={{ background:'none',border:'none',cursor:'pointer',color:'var(--text3)',padding:4,flexShrink:0 }}>✕</button>
+              <button onClick={()=>{ setAiResult(''); setNlpDismissed(true); }} style={{ background:'none',border:'none',cursor:'pointer',color:'var(--text3)',padding:4,flexShrink:0 }}>✕</button>
             </div>
           </div>
         )}
@@ -145,7 +175,7 @@ function SearchContent() {
               <button onClick={reset} style={{ background:'linear-gradient(135deg,#0057E7,#0EA5E9)',color:'#fff',border:'none',borderRadius:13,padding:'13px 28px',fontSize:14,fontWeight:800,cursor:'pointer' }}>Сбросить фильтры</button>
             </div>
           ) : view==='grid' ? (
-            <div className="grid-cards">
+            <div className="search-results-grid grid-cards">
               {result.map(item => (
                 <Link key={item.id} href={`/listing/${item.id}`} style={{ textDecoration:'none' }}>
                   <div style={{ borderRadius:20,overflow:'hidden',background:'var(--surface)',boxShadow:'var(--shadow)',transition:'transform 0.3s,box-shadow 0.3s',cursor:'pointer' }}
@@ -183,7 +213,7 @@ function SearchContent() {
               ))}
             </div>
           ) : (
-            <div style={{ display:'flex',flexDirection:'column',gap:14 }}>
+            <div className="listing-card-list" style={{ display:'flex',flexDirection:'column',gap:14 }}>
               {result.map(item => (
                 <Link key={item.id} href={`/listing/${item.id}`} style={{ textDecoration:'none' }}>
                   <div style={{ display:'flex',gap:20,background:'var(--surface)',borderRadius:18,overflow:'hidden',boxShadow:'var(--shadow)',transition:'box-shadow 0.2s,transform 0.2s',cursor:'pointer' }}

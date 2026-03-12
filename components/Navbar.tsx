@@ -1,10 +1,20 @@
 'use client';
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useApp } from '@/context/AppContext';
 
 export default function Navbar({ onLogin, onRegister, transparent = false }: { onLogin?: ()=>void; onRegister?: ()=>void; transparent?: boolean }) {
   const { theme, toggleTheme, user, logout } = useApp();
+  const router = useRouter();
+
+  const handleAddListing = () => {
+    if (!user) {
+      onLogin?.();
+    } else {
+      router.push('/listing/new');
+    }
+  };
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
@@ -96,7 +106,7 @@ export default function Navbar({ onLogin, onRegister, transparent = false }: { o
           ) : (
             <>
               <button onClick={onLogin} className="hide-mobile" style={{ background:'none',border:`1.5px solid ${glass?'rgba(255,255,255,0.5)':'var(--border)'}`,color:tc,padding:'8px 16px',borderRadius:11,fontWeight:700,fontSize:14,cursor:'pointer',whiteSpace:'nowrap' }}>Войти</button>
-              <button onClick={onRegister} className="hide-mobile" style={{ background:'linear-gradient(135deg,#0057E7,#0EA5E9)',color:'#fff',border:'none',padding:'9px 18px',borderRadius:11,fontWeight:800,fontSize:14,cursor:'pointer',boxShadow:'0 4px 14px rgba(0,87,231,0.4)',whiteSpace:'nowrap' }}>+ Разместить</button>
+              <button onClick={handleAddListing} className="hide-mobile" style={{ background:'linear-gradient(135deg,#0057E7,#0EA5E9)',color:'#fff',border:'none',padding:'9px 18px',borderRadius:11,fontWeight:800,fontSize:14,cursor:'pointer',boxShadow:'0 4px 14px rgba(0,87,231,0.4)',whiteSpace:'nowrap' }}>+ Разместить</button>
             </>
           )}
 
@@ -114,14 +124,14 @@ export default function Navbar({ onLogin, onRegister, transparent = false }: { o
       {mobileOpen && (
         <div style={{ borderTop:'1px solid var(--border)',background:'var(--nav-bg)',padding:'16px 24px 24px',animation:'fadeIn 0.2s ease' }}>
           <div style={{ display:'flex',flexDirection:'column',gap:6,marginBottom:16 }}>
-            {[['/', 'Главная'], ['/search', 'Аренда'], ['/search?mode=buy', 'Продажа'], ['/search', 'AI-поиск']].map(([href,label]) => (
+            {[['/', 'Главная'], ['/search', 'Аренда'], ['/search?mode=buy', 'Продажа'], ['/search', 'AI-поиск'], ['/messages', '💬 Сообщения']].map(([href,label]) => (
               <Link key={label} href={href} onClick={()=>setMobileOpen(false)} style={{ padding:'12px 14px',borderRadius:11,fontSize:15,fontWeight:600,color:'var(--text)',textDecoration:'none',background:'var(--surface2)' }}>{label}</Link>
             ))}
           </div>
           {!user && (
             <div style={{ display:'flex',gap:10 }}>
               <button onClick={()=>{onLogin?.();setMobileOpen(false);}} style={{ flex:1,padding:'13px',background:'none',border:'1.5px solid var(--border)',color:'var(--text)',borderRadius:12,fontWeight:700,fontSize:15,cursor:'pointer' }}>Войти</button>
-              <button onClick={()=>{onRegister?.();setMobileOpen(false);}} style={{ flex:1,padding:'13px',background:'linear-gradient(135deg,#0057E7,#0EA5E9)',color:'#fff',border:'none',borderRadius:12,fontWeight:800,fontSize:15,cursor:'pointer' }}>Регистрация</button>
+              <button onClick={()=>{handleAddListing();setMobileOpen(false);}} style={{ flex:1,padding:'13px',background:'linear-gradient(135deg,#0057E7,#0EA5E9)',color:'#fff',border:'none',borderRadius:12,fontWeight:800,fontSize:15,cursor:'pointer' }}>+ Разместить</button>
             </div>
           )}
         </div>

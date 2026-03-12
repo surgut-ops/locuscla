@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import Navbar from '@/components/Navbar';
 import AuthModal from '@/components/AuthModal';
@@ -14,10 +14,31 @@ export default function ProfilePage() {
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [saved, setSaved] = useState(false);
+  const [avatarSrc, setAvatarSrc] = useState('');
+  const avatarInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (user) { setName(user.name); setPhone(user.phone||''); }
   }, [user]);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('locus_avatar');
+      if (saved) setAvatarSrc(saved);
+    }
+  }, []);
+
+  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const src = ev.target?.result as string;
+      setAvatarSrc(src);
+      try { localStorage.setItem('locus_avatar', src); } catch {}
+    };
+    reader.readAsDataURL(file);
+  };
 
   if (!user) return (
     <>
@@ -68,7 +89,15 @@ export default function ProfilePage() {
         {/* Profile header */}
         <div style={{ background:'linear-gradient(135deg,#0A1628,#0D2B6B)',padding:'48px 24px 24px' }}>
           <div style={{ maxWidth:1280,margin:'0 auto',display:'flex',alignItems:'center',gap:24,flexWrap:'wrap' }}>
-            <div style={{ width:88,height:88,borderRadius:26,background:'linear-gradient(135deg,#0057E7,#0EA5E9)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:36,fontWeight:900,color:'#fff',flexShrink:0,boxShadow:'0 8px 30px rgba(0,87,231,0.4)' }}>{user.name[0]}</div>
+            <div onClick={()=>avatarInputRef.current?.click()} title="Нажмите для смены фото" style={{ position:'relative',cursor:'pointer',width:88,height:88,flexShrink:0 }}>
+              {avatarSrc ? (
+                <img src={avatarSrc} alt="Аватар" style={{ width:88,height:88,borderRadius:26,objectFit:'cover',border:'3px solid rgba(255,255,255,0.3)',boxShadow:'0 8px 30px rgba(0,87,231,0.4)' }} />
+              ) : (
+                <div style={{ width:88,height:88,borderRadius:26,background:'linear-gradient(135deg,#0057E7,#0EA5E9)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:36,fontWeight:900,color:'#fff',boxShadow:'0 8px 30px rgba(0,87,231,0.4)' }}>{user.name[0]}</div>
+              )}
+              <div style={{ position:'absolute',bottom:0,right:0,width:28,height:28,borderRadius:'50%',background:'#fff',display:'flex',alignItems:'center',justifyContent:'center',fontSize:12,boxShadow:'0 2px 6px rgba(0,0,0,0.2)' }}>📷</div>
+            </div>
+            <input ref={avatarInputRef} type="file" accept="image/*" onChange={handleAvatarChange} style={{ display:'none' }} />
             <div style={{ flex:1 }}>
               <div style={{ display:'flex',alignItems:'center',gap:10,flexWrap:'wrap' }}>
                 <h1 style={{ fontSize:26,fontWeight:900,color:'#fff',marginBottom:2 }}>{user.name}</h1>
@@ -125,6 +154,11 @@ export default function ProfilePage() {
                   <Inp label="Email" value={user.email} onChange={()=>{}} />
                   <Inp label="Телефон" value={phone} onChange={setPhone} type="tel" placeholder="+7 (000) 000-00-00" />
                   <Inp label="Дата регистрации" value={user.createdAt} onChange={()=>{}} />
+                </div>
+                <div style={{ marginTop:'20px', paddingTop:'20px', borderTop:'1px solid var(--border)' }}>
+                  <Link href={`/user/${user.id}`} style={{ display:'inline-flex', alignItems:'center', gap:8, padding:'12px 20px', borderRadius:12, border:'1.5px solid var(--border)', background:'transparent', color:'var(--text)', textDecoration:'none', fontWeight:600, fontSize:14 }}>
+                    👤 Открыть публичный профиль
+                  </Link>
                 </div>
               </div>
 

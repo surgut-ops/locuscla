@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Navbar from '@/components/Navbar';
 import AuthModal from '@/components/AuthModal';
 import { useApp } from '@/context/AppContext';
-import { LISTINGS, CATEGORIES, CITIES } from '@/lib/data';
+import { LISTINGS, CATEGORIES, CITIES, ALL_CITIES } from '@/lib/data';
 
 const HERO_IMGS = [
   'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=1800&q=85',
@@ -253,7 +253,7 @@ function ListingCard({ item }: { item: typeof LISTINGS[0] }) {
 // ── HOME PAGE ──────────────────────────────────────────────────────────────
 export default function HomePage() {
   const router = useRouter();
-  useApp();
+  const { user } = useApp();
   const [authModal, setAuthModal] = useState<'login'|'register'|null>(null);
   const [aiModal, setAiModal] = useState(false);
   const [filterModal, setFilterModal] = useState(false);
@@ -272,18 +272,13 @@ export default function HomePage() {
     return () => clearInterval(t);
   }, []);
 
-  // City autocomplete
+  // City autocomplete (ALL_CITIES)
   useEffect(() => {
-    if (query.length < 2) { setSuggestions([]); return; }
+    if (!query || query.length < 1) { setSuggestions([]); return; }
     const q = query.toLowerCase();
-    const matched = [
-      ...CITIES.filter(c => c.toLowerCase().startsWith(q)),
-      ...CITIES.filter(c => c.toLowerCase().includes(q) && !c.toLowerCase().startsWith(q)),
-      `${query} — аренда квартир`,
-      `${query} — студии`,
-      `${query} — рядом с метро`,
-    ].slice(0, 6);
-    setSuggestions(matched);
+    const startsWith = ALL_CITIES.filter(c => c.toLowerCase().startsWith(q));
+    const contains = ALL_CITIES.filter(c => c.toLowerCase().includes(q) && !c.toLowerCase().startsWith(q));
+    setSuggestions([...startsWith, ...contains].slice(0, 6));
   }, [query]);
 
   useEffect(() => {
@@ -329,6 +324,12 @@ export default function HomePage() {
         @keyframes slideUp{from{opacity:0;transform:translateY(40px)}to{opacity:1;transform:translateY(0)}}
         @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.5}}
         @keyframes fadeInUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+        @media (max-width: 768px) {
+          .stats-row { display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 16px !important; }
+          .footer-grid { flex-direction: column !important; gap: 32px !important; }
+          .city-scroll { overflow-x: auto !important; white-space: nowrap !important; -webkit-overflow-scrolling: touch !important; }
+          .main-content { padding-bottom: 80px !important; }
+        }
       `}</style>
 
       <Navbar onLogin={()=>setAuthModal('login')} onRegister={()=>setAuthModal('register')} transparent />
@@ -425,7 +426,7 @@ export default function HomePage() {
           </div>
 
           {/* Stats */}
-          <div style={{ display:'flex',gap:'clamp(20px,4vw,40px)',marginTop:36,animation:'fadeInUp 0.6s ease 0.4s both',flexWrap:'wrap' }}>
+          <div className="stats-row" style={{ display:'flex',gap:'clamp(20px,4vw,40px)',marginTop:36,animation:'fadeInUp 0.6s ease 0.4s both',flexWrap:'wrap' }}>
             {[{v:'5 млн+',l:'Объявлений'},{v:'98%',l:'Верифицированы'},{v:'4.9★',l:'Рейтинг'},{v:'<48ч',l:'Время сделки'}].map((s,i) => (
               <div key={i}>
                 <div style={{ fontSize:'clamp(18px,2.5vw,22px)',fontWeight:900,color:'#fff',letterSpacing:'-0.5px' }}>{s.v}</div>
@@ -438,7 +439,7 @@ export default function HomePage() {
 
       {/* ── CITY TABS ──────────────────────────────── */}
       <div style={{ background:'var(--surface)',borderBottom:'1px solid var(--border)',padding:'0 24px' }}>
-        <div style={{ maxWidth:1280,margin:'0 auto',display:'flex',gap:4,overflowX:'auto',scrollbarWidth:'none' }}>
+        <div className="city-scroll" style={{ maxWidth:1280,margin:'0 auto',display:'flex',gap:4,overflowX:'auto',scrollbarWidth:'none' }}>
           {CITIES.map(city => (
             <Link key={city} href={`/search?city=${encodeURIComponent(city)}`} style={{ textDecoration:'none' }}>
               <button style={{ background:'none',border:'none',padding:'14px 18px',fontSize:14,fontWeight:700,color:'var(--text2)',cursor:'pointer',whiteSpace:'nowrap',borderBottom:'2.5px solid transparent',transition:'all 0.2s' }}
@@ -619,7 +620,7 @@ export default function HomePage() {
           <h2 style={{ fontFamily:"'Unbounded',sans-serif",fontSize:'clamp(24px,3vw,32px)',fontWeight:900,marginBottom:14,color:'var(--text)',letterSpacing:'-0.8px' }}>Сдаёте жильё?</h2>
           <p style={{ color:'var(--text2)',fontSize:17,lineHeight:1.65,marginBottom:32 }}>Разместите объявление бесплатно. AI определит оптимальную цену и поможет найти надёжных арендаторов</p>
           <div style={{ display:'flex',gap:12,justifyContent:'center',flexWrap:'wrap' }}>
-            <button onClick={()=>setAuthModal('register')} style={{ background:'linear-gradient(135deg,#0057E7,#0EA5E9)',color:'#fff',border:'none',borderRadius:14,padding:'14px 32px',fontSize:15,fontWeight:800,cursor:'pointer',boxShadow:'0 8px 28px rgba(0,87,231,0.4)' }}>Разместить бесплатно</button>
+            <button onClick={()=>{ if (!user) setAuthModal('register'); else router.push('/listing/new'); }} style={{ background:'linear-gradient(135deg,#0057E7,#0EA5E9)',color:'#fff',border:'none',borderRadius:14,padding:'14px 32px',fontSize:15,fontWeight:800,cursor:'pointer',boxShadow:'0 8px 28px rgba(0,87,231,0.4)' }}>Разместить бесплатно</button>
             <button style={{ background:'var(--surface2)',color:'var(--text)',border:'1.5px solid var(--border)',borderRadius:14,padding:'14px 24px',fontSize:15,fontWeight:700,cursor:'pointer' }}>Узнать AI-цену</button>
           </div>
         </div>
@@ -628,7 +629,7 @@ export default function HomePage() {
       {/* ── FOOTER ─────────────────────────────────── */}
       <footer style={{ background:'#0A1628',padding:'56px 24px 28px',color:'rgba(255,255,255,0.6)' }}>
         <div style={{ maxWidth:1280,margin:'0 auto' }}>
-          <div style={{ display:'grid',gridTemplateColumns:'2fr 1fr 1fr 1fr',gap:40,marginBottom:40 }} className="grid-footer">
+          <div style={{ display:'grid',gridTemplateColumns:'2fr 1fr 1fr 1fr',gap:40,marginBottom:40 }} className="footer-grid grid-footer">
             <div>
               <div style={{ display:'flex',alignItems:'center',gap:10,marginBottom:14 }}>
                 <div style={{ width:38,height:38,borderRadius:11,background:'linear-gradient(135deg,#0057E7,#0EA5E9)',display:'flex',alignItems:'center',justifyContent:'center' }}>
@@ -642,18 +643,18 @@ export default function HomePage() {
               </div>
             </div>
             {[
-              {title:'Арендаторам',items:['Поиск жилья','AI-поиск','Карта','Безопасность','FAQ']},
-              {title:'Арендодателям',items:['Разместить объявление','Тарифы','AI-оценка','Управление','Аналитика']},
-              {title:'Компания',items:['О нас','Блог','Пресс-центр','Карьера','Контакты']},
+              {title:'Арендаторам',items:[{l:'Поиск жилья',h:'/search'},{l:'AI-поиск',h:'/search'},{l:'Карта',h:'/search'},{l:'Безопасность',h:'/faq'},{l:'FAQ',h:'/faq'}]},
+              {title:'Арендодателям',items:[{l:'Разместить объявление',h:'/listing/new'},{l:'Тарифы',h:'/faq'},{l:'AI-оценка',h:'/search'},{l:'Управление',h:'/profile'},{l:'Аналитика',h:'/analytics'}]},
+              {title:'Компания',items:[{l:'О нас',h:'/faq'},{l:'Блог',h:'/faq'},{l:'Пресс-центр',h:'/faq'},{l:'Карьера',h:'/careers'},{l:'Контакты',h:'/faq'}]},
             ].map(col => (
               <div key={col.title}>
                 <h4 style={{ color:'#fff',fontWeight:800,fontSize:14,marginBottom:14 }}>{col.title}</h4>
                 {col.items.map(item => (
-                  <div key={item} style={{ marginBottom:9 }}>
-                    <Link href="#" style={{ color:'rgba(255,255,255,0.5)',textDecoration:'none',fontSize:13,transition:'color 0.15s' }}
+                  <div key={item.l} style={{ marginBottom:9 }}>
+                    <Link href={item.h} style={{ color:'rgba(255,255,255,0.5)',textDecoration:'none',fontSize:13,transition:'color 0.15s' }}
                       onMouseEnter={e=>(e.target as HTMLElement).style.color='#4DB8FF'}
                       onMouseLeave={e=>(e.target as HTMLElement).style.color='rgba(255,255,255,0.5)'}
-                    >{item}</Link>
+                    >{item.l}</Link>
                   </div>
                 ))}
               </div>
@@ -662,7 +663,11 @@ export default function HomePage() {
           <div style={{ borderTop:'1px solid rgba(255,255,255,0.08)',paddingTop:22,display:'flex',justifyContent:'space-between',flexWrap:'wrap',gap:12 }}>
             <span style={{ fontSize:12 }}>© 2024 Locus. Все права защищены.</span>
             <div style={{ display:'flex',gap:18 }}>
-              {['Конфиденциальность','Соглашение','Cookies'].map(t => <Link key={t} href="#" style={{ color:'rgba(255,255,255,0.35)',fontSize:12,textDecoration:'none' }}>{t}</Link>)}
+              <Link href="/privacy" style={{ color:'rgba(255,255,255,0.35)',fontSize:12,textDecoration:'none' }}>Конфиденциальность</Link>
+              <Link href="/terms" style={{ color:'rgba(255,255,255,0.35)',fontSize:12,textDecoration:'none' }}>Соглашение</Link>
+              <Link href="/faq" style={{ color:'rgba(255,255,255,0.35)',fontSize:12,textDecoration:'none' }}>FAQ</Link>
+              <Link href="/analytics" style={{ color:'rgba(255,255,255,0.35)',fontSize:12,textDecoration:'none' }}>Аналитика</Link>
+              <Link href="/careers" style={{ color:'rgba(255,255,255,0.35)',fontSize:12,textDecoration:'none' }}>Карьера</Link>
             </div>
           </div>
         </div>

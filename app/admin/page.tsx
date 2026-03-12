@@ -6,17 +6,57 @@ import AuthModal from '@/components/AuthModal';
 import { useApp } from '@/context/AppContext';
 import { LISTINGS } from '@/lib/data';
 
+const STAT_VALS: Record<string, { val: string; delta: string; icon: string }> = {
+  listings: { val: String(LISTINGS.length), delta: '+342 сегодня', icon: '📋' },
+  users: { val: '0', delta: '+127 сегодня', icon: '👥' },
+  active: { val: '0', delta: 'на платформе', icon: '🤝' },
+  blocked: { val: '0', delta: 'пользователей', icon: '💰' },
+};
+
 const STATS = [
-  { label:'Объявлений', val:'127,840', delta:'+342 сегодня', icon:'📋', color:'#0057E7' },
-  { label:'Пользователей', val:'89,241', delta:'+127 сегодня', icon:'👥', color:'#00C896' },
-  { label:'Сделок', val:'12,390', delta:'+43 сегодня', icon:'🤝', color:'#A78BFA' },
-  { label:'Выручка', val:'₽4.2М', delta:'+₽127К сегодня', icon:'💰', color:'#FB923C' },
+  { label:'Объявлений', key:'listings', color:'#0057E7' },
+  { label:'Пользователей', key:'users', color:'#00C896' },
+  { label:'Активных', key:'active', color:'#A78BFA' },
+  { label:'Заблокировано', key:'blocked', color:'#FB923C' },
 ];
 
 export default function AdminPage() {
   const { user } = useApp();
   const [authModal, setAuthModal] = useState<'login'|'register'|null>(null);
   const [tab, setTab] = useState('dashboard');
+  const [adminUsers, setAdminUsers] = useState([
+    { id: 'u1', name: 'Иван Петров', email: 'user@locus.ru', role: 'user', status: 'active', date: '2024-06-15' },
+    { id: 'admin1', name: 'Администратор', email: 'admin@locus.ru', role: 'admin', status: 'active', date: '2024-01-01' },
+    { id: 'u2', name: 'Анна Смирнова', email: 'anna@mail.ru', role: 'user', status: 'active', date: '2024-11-03' },
+    { id: 'u3', name: 'Пётр Козлов', email: 'petr@mail.ru', role: 'user', status: 'blocked', date: '2024-09-12' },
+  ]);
+  const [activityLog, setActivityLog] = useState<string[]>([]);
+
+  const log = (msg: string) => {
+    const t = new Date().toLocaleTimeString('ru', { hour: '2-digit', minute: '2-digit' });
+    setActivityLog(prev => [`${t} — ${msg}`, ...prev].slice(0, 10));
+  };
+  const toggleBlockUser = (id: string) => {
+    setAdminUsers(prev => prev.map(u => {
+      if (u.id !== id) return u;
+      const s = u.status === 'blocked' ? 'active' : 'blocked';
+      log(s === 'blocked' ? `🚫 Заблокирован: ${u.name}` : `✅ Разблокирован: ${u.name}`);
+      return { ...u, status: s };
+    }));
+  };
+  const deleteUser = (id: string) => {
+    const u = adminUsers.find(x => x.id === id);
+    if (!u || !confirm(`Удалить пользователя ${u.name}?`)) return;
+    setAdminUsers(prev => prev.filter(x => x.id !== id));
+    log(`🗑 Удалён: ${u.name}`);
+  };
+  const changeRole = (id: string, role: string) => {
+    setAdminUsers(prev => prev.map(u => {
+      if (u.id !== id) return u;
+      log(`👤 ${u.name}: роль изменена на "${role}"`);
+      return { ...u, role };
+    }));
+  };
 
   if (!user || user.role !== 'admin') return (
     <>
@@ -66,17 +106,29 @@ export default function AdminPage() {
           {tab==='dashboard' && <>
             {/* Stats */}
             <div style={{ display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(220px,1fr))',gap:16,marginBottom:28 }}>
-              {STATS.map((s,i) => (
+              {STATS.map((s,i) => {
+                const v = s.key === 'users' ? String(adminUsers.length) : s.key === 'active' ? String(adminUsers.filter(u=>u.status==='active').length) : s.key === 'blocked' ? String(adminUsers.filter(u=>u.status==='blocked').length) : String(LISTINGS.length);
+                const d = STAT_VALS[s.key];
+                return (
                 <div key={i} style={{ background:'var(--surface)',borderRadius:18,padding:22,boxShadow:'var(--shadow)',borderLeft:`4px solid ${s.color}` }}>
                   <div style={{ display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:10 }}>
                     <span style={{ fontSize:12,color:'var(--text2)',fontWeight:700,textTransform:'uppercase',letterSpacing:'0.6px' }}>{s.label}</span>
-                    <span style={{ fontSize:24 }}>{s.icon}</span>
+                    <span style={{ fontSize:24 }}>{d.icon}</span>
                   </div>
-                  <div style={{ fontSize:26,fontWeight:900,color:'var(--text)',marginBottom:4 }}>{s.val}</div>
-                  <div style={{ fontSize:12,color:'var(--green)',fontWeight:700 }}>{s.delta}</div>
+                  <div style={{ fontSize:26,fontWeight:900,color:'var(--text)',marginBottom:4 }}>{v}</div>
+                  <div style={{ fontSize:12,color:'var(--green)',fontWeight:700 }}>{d.delta}</div>
                 </div>
-              ))}
+              );})}
             </div>
+
+            {activityLog.length > 0 && (
+              <div style={{ marginTop:24, background:'var(--surface)', borderRadius:16, padding:20, border:'1px solid var(--border)' }}>
+                <h3 style={{ margin:'0 0 14px', fontSize:16, fontWeight:700, color:'var(--text)' }}>📋 Последние действия</h3>
+                {activityLog.map((entry,i) => (
+                  <div key={i} style={{ padding:'8px 12px', borderRadius:8, background:'var(--bg)', marginBottom:6, fontSize:13, color:'var(--text2)' }}>{entry}</div>
+                ))}
+              </div>
+            )}
 
             {/* Recent activity */}
             <div className="grid-2" style={{ gap:20 }}>
@@ -169,20 +221,27 @@ export default function AdminPage() {
           {/* Users */}
           {tab==='users' && (
             <div style={{ background:'var(--surface)',borderRadius:18,padding:24,boxShadow:'var(--shadow)' }}>
-              <h3 style={{ fontSize:16,fontWeight:800,color:'var(--text)',marginBottom:16 }}>Пользователи (мок-данные)</h3>
-              {[{n:'Иван Петров',e:'user@locus.ru',role:'user',date:'2024-06-15',ok:true},{n:'Администратор',e:'admin@locus.ru',role:'admin',date:'2024-01-01',ok:true},{n:'Анна Смирнова',e:'anna@mail.ru',role:'user',date:'2024-11-03',ok:true}].map((u,i) => (
-                <div key={i} style={{ display:'flex',alignItems:'center',justifyContent:'space-between',padding:'13px 0',borderBottom:'1px solid var(--border)',flexWrap:'wrap',gap:12 }}>
+              <h3 style={{ fontSize:16,fontWeight:800,color:'var(--text)',marginBottom:16 }}>Пользователи</h3>
+              {adminUsers.map((u) => (
+                <div key={u.id} style={{ display:'flex',alignItems:'center',justifyContent:'space-between',padding:'13px 0',borderBottom:'1px solid var(--border)',flexWrap:'wrap',gap:12, background: u.status==='blocked' ? 'rgba(239,68,68,0.04)' : 'transparent' }}>
                   <div style={{ display:'flex',alignItems:'center',gap:12 }}>
-                    <div style={{ width:40,height:40,borderRadius:'50%',background:'linear-gradient(135deg,#0057E7,#0EA5E9)',display:'flex',alignItems:'center',justifyContent:'center',color:'#fff',fontWeight:800,fontSize:16,flexShrink:0 }}>{u.n[0]}</div>
+                    <div style={{ width:40,height:40,borderRadius:'50%',background:'linear-gradient(135deg,#0057E7,#0EA5E9)',display:'flex',alignItems:'center',justifyContent:'center',color:'#fff',fontWeight:800,fontSize:16,flexShrink:0 }}>{u.name[0]}</div>
                     <div>
-                      <div style={{ fontWeight:700,fontSize:14,color:'var(--text)' }}>{u.n}</div>
-                      <div style={{ fontSize:12,color:'var(--text3)' }}>{u.e}</div>
+                      <div style={{ fontWeight:700,fontSize:14,color:'var(--text)' }}>{u.name}</div>
+                      <div style={{ fontSize:12,color:'var(--text3)' }}>{u.email}</div>
                     </div>
                   </div>
-                  <div style={{ display:'flex',alignItems:'center',gap:10 }}>
+                  <div style={{ display:'flex',alignItems:'center',gap:10, flexWrap:'wrap' }}>
                     <span style={{ background:u.role==='admin'?'rgba(0,87,231,0.1)':'var(--surface2)',color:u.role==='admin'?'var(--blue-mid)':'var(--text2)',fontSize:11,fontWeight:800,padding:'3px 10px',borderRadius:20 }}>{u.role}</span>
                     <span style={{ fontSize:12,color:'var(--text3)' }}>с {u.date}</span>
-                    <button style={{ background:'#FFF0F1',border:'none',borderRadius:7,padding:'5px 11px',fontSize:11,fontWeight:700,color:'var(--red)',cursor:'pointer' }}>Блок</button>
+                    <button onClick={()=>toggleBlockUser(u.id)} style={{ background:u.status==='blocked'?'#EDFBF4':'#FFF0F1',border:'none',borderRadius:7,padding:'5px 11px',fontSize:11,fontWeight:700,color:u.status==='blocked'?'var(--green)':'var(--red)',cursor:'pointer' }}>{u.status==='blocked'?'Разблокировать':'Блок'}</button>
+                    <button onClick={()=>deleteUser(u.id)} style={{ background:'#FFF0F1',border:'none',borderRadius:7,padding:'5px 11px',fontSize:11,fontWeight:700,color:'var(--red)',cursor:'pointer' }}>Удалить</button>
+                    {u.role!=='admin' && (
+                      <>
+                        <button onClick={()=>changeRole(u.id,'moderator')} style={{ background:'var(--surface2)',border:'none',borderRadius:7,padding:'5px 11px',fontSize:11,fontWeight:700,color:'var(--text2)',cursor:'pointer' }}>Модератор</button>
+                        <button onClick={()=>changeRole(u.id,'admin')} style={{ background:'var(--surface2)',border:'none',borderRadius:7,padding:'5px 11px',fontSize:11,fontWeight:700,color:'var(--blue-mid)',cursor:'pointer' }}>Admin</button>
+                      </>
+                    )}
                   </div>
                 </div>
               ))}

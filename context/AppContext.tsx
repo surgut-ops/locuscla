@@ -17,6 +17,8 @@ interface AppCtx {
   logout: () => void;
   toggleFavorite: (id: number) => void;
   isFavorite: (id: number) => boolean;
+  showAuthModal: boolean;
+  setShowAuthModal: (show: boolean) => void;
 }
 
 const Ctx = createContext<AppCtx>({} as AppCtx);
@@ -31,6 +33,7 @@ const DEMO_USERS: User[] = [
 export function AppProvider({ children }: { children: ReactNode }) {
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
   const [user, setUser] = useState<User | null>(null);
+  const [showAuthModal, setShowAuthModal] = useState(false);
 
   // Load from storage
   useEffect(() => {
@@ -89,5 +92,5 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const isFavorite = (id: number) => !!user?.favorites.includes(id);
 
-  return <Ctx.Provider value={{ theme, toggleTheme, user, login, register, logout, toggleFavorite, isFavorite }}>{children}</Ctx.Provider>;
+  return <Ctx.Provider value={{ theme, toggleTheme, user, login, register, logout, toggleFavorite, isFavorite, showAuthModal, setShowAuthModal }}>{children}</Ctx.Provider>;
 }

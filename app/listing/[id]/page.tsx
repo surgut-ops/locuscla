@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useApp } from '@/context/AppContext';
 import { IconStar, IconShield, IconHeart, IconMapPin, IconShare, IconPhone, IconMessage, IconBed, IconArea, IconFloor, IconCalendar, IconWifi, IconParking, IconPet, IconBrain, IconChevron, IconCheck } from '@/components/Icons';
 
 const LISTINGS: Record<string, {
@@ -62,11 +64,14 @@ const AMENITY_ICONS: Record<string, React.ReactNode> = {
 };
 
 export default function ListingPage({ params }: { params: { id: string } }) {
+  const router = useRouter();
+  const { user, setShowAuthModal, toggleFavorite, isFavorite } = useApp();
   const listing = LISTINGS[params.id] || LISTINGS['1'];
   const [mainPhoto, setMainPhoto] = useState(0);
   const [saved, setSaved] = useState(false);
   const [activeTab, setActiveTab] = useState<'desc' | 'amenities' | 'reviews' | 'location'>('desc');
   const [showPhone, setShowPhone] = useState(false);
+  const [showBooking, setShowBooking] = useState(false);
 
   return (
     <div style={{ minHeight: '100vh', background: '#F7F9FF', fontFamily: 'Manrope, sans-serif' }}>
@@ -74,6 +79,12 @@ export default function ListingPage({ params }: { params: { id: string } }) {
         @import url('https://fonts.googleapis.com/css2?family=Unbounded:wght@700;900&family=Manrope:wght@400;600;700;800&display=swap');
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { -webkit-font-smoothing: antialiased; }
+        @media (max-width: 768px) {
+          .listing-layout { display: flex !important; flex-direction: column !important; gap: 0 !important; }
+          .listing-sidebar { position: static !important; width: 100% !important; max-width: 100% !important; margin-top: 20px !important; }
+          .gallery-grid { grid-template-columns: 1fr !important; height: 260px !important; }
+          .gallery-grid > div:not(:first-child) { display: none !important; }
+        }
       `}</style>
 
       {/* Simple navbar for listing page */}
@@ -92,8 +103,8 @@ export default function ListingPage({ params }: { params: { id: string } }) {
             <button style={{ display: 'flex', alignItems: 'center', gap: 7, background: 'none', border: '1.5px solid #e5e7eb', borderRadius: 10, padding: '8px 16px', cursor: 'pointer', fontWeight: 700, fontSize: 13, color: '#555' }}>
               <IconShare /> Поделиться
             </button>
-            <button onClick={() => setSaved(!saved)} style={{ display: 'flex', alignItems: 'center', gap: 7, background: saved ? '#FFF0F1' : 'none', border: `1.5px solid ${saved ? '#FF4757' : '#e5e7eb'}`, borderRadius: 10, padding: '8px 16px', cursor: 'pointer', fontWeight: 700, fontSize: 13, color: saved ? '#FF4757' : '#555' }}>
-              <IconHeart filled={saved} /> {saved ? 'В избранном' : 'Сохранить'}
+            <button onClick={() => { if (user) toggleFavorite(listing.id); else setShowAuthModal(true); }} style={{ display: 'flex', alignItems: 'center', gap: 7, background: isFavorite(listing.id) ? '#FFF0F1' : 'none', border: `1.5px solid ${isFavorite(listing.id) ? '#FF4757' : '#e5e7eb'}`, borderRadius: 10, padding: '8px 16px', cursor: 'pointer', fontWeight: 700, fontSize: 13, color: isFavorite(listing.id) ? '#FF4757' : '#555' }}>
+              <IconHeart filled={isFavorite(listing.id)} /> {isFavorite(listing.id) ? 'В избранном' : 'Сохранить'}
             </button>
           </div>
         </div>
@@ -145,7 +156,7 @@ export default function ListingPage({ params }: { params: { id: string } }) {
         </div>
 
         {/* Photo gallery */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 40, borderRadius: 20, overflow: 'hidden', height: 480 }}>
+        <div className="gallery-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 40, borderRadius: 20, overflow: 'hidden', height: 480 }}>
           <div style={{ position: 'relative', height: '100%', cursor: 'pointer' }}>
             <img src={listing.images[mainPhoto]} alt="Main" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
           </div>
@@ -167,7 +178,7 @@ export default function ListingPage({ params }: { params: { id: string } }) {
         </div>
 
         {/* Main content + sidebar */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 360px', gap: 40, alignItems: 'start' }}>
+        <div className="listing-layout" style={{ display: 'grid', gridTemplateColumns: '1fr 360px', gap: 40, alignItems: 'start' }}>
           {/* Left */}
           <div>
             {/* Quick specs */}
@@ -339,7 +350,7 @@ export default function ListingPage({ params }: { params: { id: string } }) {
           </div>
 
           {/* Sidebar - Booking */}
-          <div style={{ position: 'sticky', top: 90 }}>
+          <div className="listing-sidebar" style={{ position: 'sticky', top: 90 }}>
             <div style={{ background: '#fff', borderRadius: 24, padding: '28px', boxShadow: '0 8px 40px rgba(0,0,0,0.1)', border: '1px solid #f0f0f0' }}>
               <div style={{ marginBottom: 20 }}>
                 <span style={{ fontFamily: "'Unbounded', sans-serif", fontSize: 28, fontWeight: 900, color: '#111' }}>{listing.price.toLocaleString('ru-RU')} ₽</span>
@@ -363,7 +374,7 @@ export default function ListingPage({ params }: { params: { id: string } }) {
 
               {/* Buttons */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                <button style={{ width: '100%', padding: '15px', background: 'linear-gradient(135deg, #0057E7, #0EA5E9)', color: '#fff', border: 'none', borderRadius: 14, fontSize: 16, fontWeight: 800, cursor: 'pointer', boxShadow: '0 8px 24px rgba(0,87,231,0.35)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+                <button onClick={() => { if (!user) setShowAuthModal(true); else { setShowBooking(true); alert('Заявка на просмотр отправлена! Хозяин свяжется с вами.'); } }} style={{ width: '100%', padding: '15px', background: 'linear-gradient(135deg, #0057E7, #0EA5E9)', color: '#fff', border: 'none', borderRadius: 14, fontSize: 16, fontWeight: 800, cursor: 'pointer', boxShadow: '0 8px 24px rgba(0,87,231,0.35)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
                   <IconCalendar /> Записаться на просмотр
                 </button>
 
@@ -371,7 +382,7 @@ export default function ListingPage({ params }: { params: { id: string } }) {
                   <IconPhone />{showPhone ? '+7 (999) 123-45-67' : 'Показать телефон'}
                 </button>
 
-                <button style={{ width: '100%', padding: '13px', background: '#fff', color: '#0066FF', border: '1.5px solid #0066FF', borderRadius: 14, fontSize: 15, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+                <button onClick={() => router.push('/messages?dialog=1')} style={{ width: '100%', padding: '13px', background: '#fff', color: '#0066FF', border: '1.5px solid #0066FF', borderRadius: 14, fontSize: 15, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
                   <IconMessage /> Написать хозяину
                 </button>
               </div>
