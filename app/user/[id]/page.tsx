@@ -46,8 +46,8 @@ export default function UserPublicPage({ params }: { params: { id: string } }) {
       <Navbar onLogin={()=>setShowAuthModal(true)} onRegister={()=>setShowAuthModal(true)} />
 
       {/* Hero */}
-      <div style={{ paddingTop: 66, background: 'linear-gradient(135deg, #0057E7 0%, #0EA5E9 100%)', padding: '40px 20px 60px' }}>
-        <div style={{ maxWidth: '720px', margin: '0 auto', display: 'flex', alignItems: 'center', gap: '20px', flexWrap: 'wrap' }}>
+      <div style={{ paddingTop: 66, background: 'linear-gradient(135deg, #0057E7 0%, #0EA5E9 100%)', padding: '40px 0 60px' }}>
+        <div style={{ maxWidth: '720px', margin: '0 auto', padding: '0 24px', display: 'flex', alignItems: 'center', gap: '20px', flexWrap: 'wrap' }}>
           <div style={{ width: '80px', height: '80px', borderRadius: '50%', background: 'rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '32px', fontWeight: 700, color: '#fff', border: '3px solid rgba(255,255,255,0.4)' }}>
             {profileUser.avatar}
           </div>
@@ -86,7 +86,7 @@ export default function UserPublicPage({ params }: { params: { id: string } }) {
         </div>
       </div>
 
-      <div style={{ maxWidth: '720px', margin: '-20px auto 0', padding: '0 20px' }}>
+      <div style={{ maxWidth: '720px', margin: '-20px auto 0', padding: '0 24px' }}>
         {profileUser.bio && (
           <div style={{ background: 'var(--card-bg)', borderRadius: '16px', padding: '20px', marginBottom: '16px', boxShadow: '0 2px 12px rgba(0,0,0,0.06)', border: '1px solid var(--border)' }}>
             <h3 style={{ margin: '0 0 10px', fontSize: '14px', fontWeight: 600, color: 'var(--text2)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>О хозяине</h3>

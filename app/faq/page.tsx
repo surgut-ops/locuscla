@@ -42,15 +42,17 @@ export default function FAQPage() {
     <div style={{ minHeight: '100vh', background: 'var(--bg)', paddingBottom: '80px' }}>
       <Navbar onLogin={()=>setShowAuthModal(true)} onRegister={()=>setShowAuthModal(true)} />
       {/* Hero */}
-      <div style={{ paddingTop: 66, background: 'linear-gradient(135deg, #0057E7 0%, #0EA5E9 100%)', padding: '60px 20px 80px', textAlign: 'center' }}>
-        <div style={{ fontSize: '48px', marginBottom: '16px' }}>❓</div>
-        <h1 style={{ margin: '0 0 12px', fontSize: '36px', fontWeight: 800, color: '#fff' }}>Часто задаваемые вопросы</h1>
-        <p style={{ margin: 0, color: 'rgba(255,255,255,0.8)', fontSize: '18px', maxWidth: '500px', marginLeft: 'auto', marginRight: 'auto' }}>
-          Ответы на самые популярные вопросы о сервисе Locus
-        </p>
+      <div style={{ paddingTop: 66, background: 'linear-gradient(135deg, #0057E7 0%, #0EA5E9 100%)', padding: '60px 0 80px' }}>
+        <div style={{ maxWidth: '720px', margin: '0 auto', padding: '0 24px', textAlign: 'center' }}>
+          <div style={{ fontSize: '48px', marginBottom: '16px' }}>❓</div>
+          <h1 style={{ margin: '0 0 12px', fontSize: '36px', fontWeight: 800, color: '#fff' }}>Часто задаваемые вопросы</h1>
+          <p style={{ margin: 0, color: 'rgba(255,255,255,0.8)', fontSize: '18px' }}>
+            Ответы на самые популярные вопросы о сервисе Locus
+          </p>
+        </div>
       </div>
 
-      <div style={{ maxWidth: '720px', margin: '-30px auto 0', padding: '0 20px' }}>
+      <div style={{ maxWidth: '720px', margin: '-30px auto 0', padding: '0 24px' }}>
         <div style={{ background: 'var(--card-bg)', borderRadius: '20px', overflow: 'hidden', boxShadow: '0 4px 24px rgba(0,0,0,0.08)', border: '1px solid var(--border)' }}>
           {FAQ_ITEMS.map((item, i) => (
             <div key={i}>
